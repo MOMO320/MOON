@@ -86,6 +86,9 @@ HRESULT sceneManager::changeScene(string sceneName)
 
 bool sceneManager::scenePush(std::string sceneName)
 {
+	POINT pt;
+	pt.x = WINSIZEX/2;
+	pt.y = WINSIZEY/2;
 	auto find = _mSceneList.find(sceneName);
 
 	if (find == _mSceneList.end())
@@ -96,6 +99,7 @@ bool sceneManager::scenePush(std::string sceneName)
 		_currentScene = find->second;
 		sceneStack.push(find->second);
 		_currentScene->isOnChange();
+		CAMERAMANAGER->setCameraCenter(pt);
 		return true;
 	}
 }

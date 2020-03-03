@@ -84,7 +84,7 @@ inline void printText(HDC _hdc, const char* _str, const char * _font, int _destX
 	HFONT curFont, oldFont;
 	COLORREF oldBkColor, oldFontColor;
 	int len = strlen(_str);
-	if (_fontColor != RGB(0, 0, 0))
+	if (_fontColor != RGB(244, 244, 233))
 		oldFontColor = SetTextColor(_hdc, _fontColor);
 	if (_bgColor != RGB(255, 255, 255))
 		oldBkColor = SetBkColor(_hdc, _bgColor);

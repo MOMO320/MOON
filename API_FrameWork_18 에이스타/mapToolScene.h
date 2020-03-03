@@ -12,7 +12,7 @@ public:
 	virtual void release() override;
 	virtual void update() override;
 	virtual void render() override;
-	//virtual void setMap() override;
+	void setMap();
 
 
 private:

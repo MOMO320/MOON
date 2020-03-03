@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27703.2035
+VisualStudioVersion = 15.0.28307.960
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "API_FrameWork", "API_FrameWork\API_FrameWork.vcxproj", "{8FF13C43-33AC-4F4E-825D-B864A3A51362}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "API_FrameWork", "API_FrameWork.vcxproj", "{8FF13C43-33AC-4F4E-825D-B864A3A51362}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +26,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {7E5815B5-AE1B-447D-A87D-F9B051EB1EFD}
+		SolutionGuid = {38B342F7-2F00-4B0C-830E-BE216771B6AE}
 	EndGlobalSection
 EndGlobal

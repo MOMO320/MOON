@@ -34,6 +34,9 @@ HRESULT mainGame::init()
 	////===================//
 	IMAGEMANAGER->addImage("맵툴메인", "images/Maptool/Dungeon/Base/MapToolMain.bmp", 215 * 2, 285 * 2, true, RGB(255, 0, 255));
 	IMAGEMANAGER->addImage("박스닫힘", "images/Maptool/Dungeon/Base/BOXCLOSE.bmp", 281 * 2, 273 * 2, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("다음페이지", "images/Maptool/Dungeon/Base/nextPage.bmp", 32 * 2, 32 * 2, true, RGB(255, 0, 255)); 
+	IMAGEMANAGER->addImage("이전페이지", "images/Maptool/Dungeon/Base/beforePage.bmp", 32 * 2, 32 * 2, true, RGB(255, 0, 255));
+
 
 	//// - 아이콘( 바닥, 벽)
 	IMAGEMANAGER->addImage("ic던전룸1", "images/Maptool/Dungeon/Flow/Room1.bmp", 576 / 8, 360 / 5, true, RGB(255, 0, 255));
@@ -67,8 +70,9 @@ HRESULT mainGame::init()
 	m_mapTool->init();
 	//--------------------------------------------------------------------------------------------------------
 
-	rc = RectMakeCenter(WINSIZEX / 2, WINSIZEY / 2, 100, 100);
-	rc2 = RectMakeCenter(WINSIZEX * 2, 1000, 100, 100);
+	// 카메라 예시용 RECT
+	//rc = RectMakeCenter(WINSIZEX / 2, WINSIZEY / 2, 100, 100);
+	//rc2 = RectMakeCenter(WINSIZEX * 2, 1000, 100, 100);
 
 
 	return S_OK;
@@ -107,26 +111,27 @@ void mainGame::update()
 
 	}
 
-	if (KEYMANAGER->isStayKeyDown(VK_LEFT) && CAMERAMANAGER->getCameraXY().x > 0)
-	{
-		CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x - 50, CAMERAMANAGER->getCameraCenter().y));
-	}
 
-	if (KEYMANAGER->isStayKeyDown(VK_RIGHT))
-	{
-		CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x + 50, CAMERAMANAGER->getCameraCenter().y));
-	}
-
-	if (KEYMANAGER->isStayKeyDown(VK_UP) && CAMERAMANAGER->getCameraXY().y > 0)
-	{
-		CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x, CAMERAMANAGER->getCameraCenter().y - 50));
-	}
-
-	if (KEYMANAGER->isStayKeyDown(VK_DOWN))
-	{
-		CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x, CAMERAMANAGER->getCameraCenter().y + 50));
-
-	}
+	// 카메라만 움직이게 하는 코드
+	//if (KEYMANAGER->isStayKeyDown(VK_LEFT) && CAMERAMANAGER->getCameraXY().x > 0)
+	//{
+	//	CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x - 50, CAMERAMANAGER->getCameraCenter().y));
+	//}
+	//
+	//if (KEYMANAGER->isStayKeyDown(VK_RIGHT))
+	//{
+	//	CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x + 50, CAMERAMANAGER->getCameraCenter().y));
+	//}
+	//
+	//if (KEYMANAGER->isStayKeyDown(VK_UP) && CAMERAMANAGER->getCameraXY().y > 0)
+	//{
+	//	CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x, CAMERAMANAGER->getCameraCenter().y - 50));
+	//}
+	//
+	//if (KEYMANAGER->isStayKeyDown(VK_DOWN))
+	//{
+	//	CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x, CAMERAMANAGER->getCameraCenter().y + 50));
+	//}
 
 }
 
@@ -134,11 +139,11 @@ void mainGame::render(/*HDC hdc*/)
 {
 	//흰색 비트맵
 	//PatBlt(getMemDC(), 0, 0, WINSIZEX, WINSIZEY, WHITENESS);
-	PatBlt(getMemDC(), CAMERAMANAGER->getCameraCenter().x - WINSIZEX / 2, CAMERAMANAGER->getCameraCenter().y - WINSIZEY, WINSIZEX, WINSIZEY, BLACKNESS);
-	PatBlt(CAMERAMANAGER->getCameraDC(), 0, 0, WINSIZEX, WINSIZEY, BLACKNESS);
+	PatBlt(getMemDC(), CAMERAMANAGER->getCameraCenter().x - WINSIZEX / 2, CAMERAMANAGER->getCameraCenter().y - WINSIZEY/2, WINSIZEX, WINSIZEY, WHITENESS);
+	PatBlt(CAMERAMANAGER->getCameraDC(), 0, 0, WINSIZEX, WINSIZEY, WHITENESS);
 	//===================================================
 	SCENEMANAGER->render();
-	TIMEMANAGER->render(getMemDC());
+	TIMEMANAGER->render(CAMERAMANAGER->getCameraDC());
 
 	Rectangle(getMemDC(), rc.left, rc.top, rc.right, rc.bottom);
 	Rectangle(getMemDC(), rc2.left, rc2.top, rc2.right, rc2.bottom);
@@ -146,12 +151,12 @@ void mainGame::render(/*HDC hdc*/)
 	//백버퍼의 내용을 HDC에 그린다.(건드리지말것.)
 	//this->getBackBuffer()->render(getHDC(), 0, 0);
 	CAMERAMANAGER->render(this->getBackBuffer());
-	this->getBackBuffer()->render(getHDC(), 0, 0, CAMERAMANAGER->getCameraCenter().x - WINSIZEX / 2, CAMERAMANAGER->getCameraCenter().y - WINSIZEY / 2, WINSIZEX, WINSIZEY);
+	this->getBackBuffer()->render(getHDC(), 0, 0, CAMERAMANAGER->getCameraCenter().x - WINSIZEX / 2, CAMERAMANAGER->getCameraCenter().y -WINSIZEY / 2, WINSIZEX, WINSIZEY);
 }
 
 void mainGame::setMap()
 {
-	//m_mapToolScene->setMap();
+	m_mapToolScene->setMap();
 }
 
 

@@ -11,7 +11,7 @@ image * gameNode::setBackBuffer()
 {
 
 	_backBuffer = new image;
-	_backBuffer->init(10000, 10000);
+	_backBuffer->init(BACKBUFFX, BACKBUFFY);
 
 	return _backBuffer;
 }
@@ -74,6 +74,7 @@ void gameNode::release()
 		SCENEMANAGER->release();
 		ANIMATIONMANAGER->release();
 		EFFECTMANAGER->release();
+		CAMERAMANAGER->relaese();
 
 	}
 
@@ -95,6 +96,10 @@ void gameNode::render()
 {
 }
 
+void gameNode::setMap()
+{
+}
+
 LRESULT gameNode::MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
 	//PAINTSTRUCT ps;
@@ -102,6 +107,10 @@ LRESULT gameNode::MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPara
 
 	switch (iMessage)
 	{
+	case WM_LBUTTONDOWN:
+		this->setMap();
+		break;
+
 	case WM_MOUSEMOVE:
 		SUBWIN->SetIsActive(false);
 		m_ptMouse.x = LOWORD(lParam);

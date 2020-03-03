@@ -27,6 +27,12 @@ public:
 	virtual void render(HDC hdc);
 	virtual void render();
 
+	//¸ÊÅø¿ë
+	int _ctrSelect;
+	void setCtrSelect(int num) { _ctrSelect = num; }
+
+	virtual void setMap();
+
 	//sceneManager
 	bool isUpdateLastSceneData = false;
 	void isOnChange() { isUpdateLastSceneData = false; }

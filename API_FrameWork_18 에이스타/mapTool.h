@@ -54,7 +54,6 @@ struct tagOnceTile
 };
 
 
-
 struct tagTile
 {
 	TERRAIN m_terrain;
@@ -83,6 +82,13 @@ struct tagCurrentTile
 	int y;
 };
 
+struct imageButton
+{
+	image* m_img;
+	RECT   m_rc;
+};
+
+
 class mapTool : public gameNode
 {
 public:
@@ -108,12 +114,20 @@ public:
 	WALL		m_wallSelect(int imageX);
 
 private:
+	void onceTileMenuRender();		// 한번에 까는 타일 메뉴 렌더
 	void onceTileRender();			// 한번에 까는 타일 랜더 ( 바닥, 벽 )
+	
+	void terrainMenuRender();		// 지형 타일 메뉴 렌더
 	void terrainTileRender();		// 지형 타일 랜더
+
+	void objectMenuRender();		// 오브젝트 메뉴 랜더
 	void objectTileRender();		// 오브젝트 타일 랜더
 
 	void OnceTileIconRange();		// 한번에 그려주는 타일 아이콘 정렬(mapToolSetUp)에 들어갈거
 
+	void updateRect();				// 업데이트 되는 렉트위치
+
+	void setUi();					// ui버튼 클릭 연산처리 
 private:
 	tagCurrentTile  m_currentTile;	//현재 지목된 타일
 	tagTile			m_tiles[BACKTILEX * BACKTILEY];
@@ -135,7 +149,13 @@ private:
 	bool m_isGroundChoice;
 	bool m_isWallChoice;
 
+	//맵툴북 페이지 카운트
+	int		 m_mapToolBookCount;
+	imageButton	 m_nextPageImg;
+	imageButton	 m_beforePageImg;
+
 	// mapTool제목
-	std::string subject[3] = { "바닥", "벽", " 오브젝트" };
+	std::string subject[3] = { " [ 바닥 ] ", " [ 벽 ] ", " [ 오브젝트 ] " };
+	std::string tileTypeName[3] = { " GROUND " , " TERRAIN " , "  OBJECT " };
 };
 

@@ -3,7 +3,7 @@
 
 
 mapTool::mapTool()
-	:m_isGroundChoice(false), m_isWallChoice(false)
+	:m_isGroundChoice(false), m_isWallChoice(false), m_mapToolBookCount(0)
 {
 }
 
@@ -28,11 +28,15 @@ HRESULT mapTool::init()
 	m_WallTile[0] = IMAGEMANAGER->findImage("던전벽1");
 	m_WallTile[1] = IMAGEMANAGER->findImage("던전벽2");
 
+	m_nextPageImg.m_img = IMAGEMANAGER->findImage("다음페이지");
+	m_beforePageImg.m_img = IMAGEMANAGER->findImage("이전페이지");
 
 	mapToolSetUp();
 
 	GR_OnceTile.m_backGroun = BR_NULL;
 	WA_OnceTile.m_wall = WA_NULL;
+
+	updateRect();
 
 	return S_OK;
 }
@@ -44,7 +48,28 @@ void mapTool::release()
 
 void mapTool::update()
 {
+	
 
+	if (KEYMANAGER->isStayKeyDown(VK_LEFT) && CAMERAMANAGER->getCameraXY().x > 0)
+	{
+		CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x - 50, CAMERAMANAGER->getCameraCenter().y));
+	}
+
+	if (KEYMANAGER->isStayKeyDown(VK_RIGHT))
+	{
+		CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x + 50, CAMERAMANAGER->getCameraCenter().y));
+	}
+
+	if (KEYMANAGER->isStayKeyDown(VK_UP) && CAMERAMANAGER->getCameraXY().y > 0)
+	{
+		CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x, CAMERAMANAGER->getCameraCenter().y - 50));
+	}
+
+	if (KEYMANAGER->isStayKeyDown(VK_DOWN))
+	{
+		CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x, CAMERAMANAGER->getCameraCenter().y + 50));
+
+	}
 }
 
 void mapTool::debugRender()  // 상자만 출력
@@ -63,22 +88,35 @@ void mapTool::debugRender()  // 상자만 출력
 void mapTool::mapToolMenuRender()
 {
 	/* 맵툴 선택 메뉴 창 */
-	IMAGEMANAGER->render("맵툴메인", getMemDC(), WINSIZEX / 2 + 210, 50);
+	IMAGEMANAGER->render("맵툴메인",CAMERAMANAGER->getCameraDC(), WINSIZEX / 2 + 210 , 50);
+	m_nextPageImg.m_img->render(CAMERAMANAGER->getCameraDC(), m_nextPageImg.m_rc.left, m_nextPageImg.m_rc.top);
+	m_beforePageImg.m_img->render(CAMERAMANAGER->getCameraDC(), m_beforePageImg.m_rc.left, m_beforePageImg.m_rc.top);
+	
+	switch (m_mapToolBookCount)
+	{
+	case ONCETILE:
+		printText(CAMERAMANAGER->getCameraDC(), tileTypeName[m_mapToolBookCount].c_str(), "나눔스퀘어_ac ExtraBold", WINSIZEX - 315, 135, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
+		onceTileMenuRender();
+		break;
+	case TERRAINTILE:
+		printText(CAMERAMANAGER->getCameraDC(), tileTypeName[m_mapToolBookCount].c_str(), "나눔스퀘어_ac ExtraBold", WINSIZEX - 315, 135, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
+		break;
+	case OBJECTTILE:
+		printText(CAMERAMANAGER->getCameraDC(), tileTypeName[m_mapToolBookCount].c_str(), "나눔스퀘어_ac ExtraBold", WINSIZEX - 315, 135, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
+		break;
+	default:
+		break;
+	}
 
-	printText(getMemDC(), subject[0].c_str(), "나눔스퀘어_ac Bold", WINSIZEX / 2 + 300, 190, 55, RGB(0, 0, 0), true, RGB(255, 0, 255));
-	for (int i = 0; i < GROUNDTILEX; i++)
-		IconGround[i]->render(getMemDC(), m_groundTiles[i].m_rcTile.left + (i * 15), m_groundTiles[i].m_rcTile.top);
-
-	printText(getMemDC(), subject[1].c_str(), "나눔스퀘어_ac Bold", WINSIZEX / 2 + 300, 280, 55, RGB(0, 0, 0), true, RGB(255, 0, 255));
-	for (int i = 0; i < WALLTILEX; i++)
-		IconWall[i]->render(getMemDC(), m_wallTiles[i].m_rcTile.left + (i * 100), m_wallTiles[i].m_rcTile.top);
+	
 }
 
 
-void mapTool::render()
+void mapTool::render() // 타일 이미지 뿌려주기(오른쪽)
 {
 	// 바닥 뿌려 주기
 	onceTileRender();
+
 }
 
 
@@ -165,8 +203,28 @@ void mapTool::setMap()
 			break;
 		}
 	}
+	setUi();
 }
 
+void mapTool::setUi()
+{
+	if (PtInRect(&m_nextPageImg.m_rc, m_ptMouse))
+	{
+		if (m_mapToolBookCount == 2)
+			m_mapToolBookCount = 0;
+		else
+			m_mapToolBookCount++;
+	}
+
+	if (PtInRect(&m_beforePageImg.m_rc, m_ptMouse))
+	{
+		if (m_mapToolBookCount == 0)
+			m_mapToolBookCount = 2;
+		else
+			m_mapToolBookCount--;
+	}
+
+}
 
 void mapTool::save()
 {
@@ -175,17 +233,9 @@ void mapTool::save()
 void mapTool::load()
 {
 }
-
-TERRAIN mapTool::m_terrainSelect(int frameX, int frameY)
-{
-	return TERRAIN();
-}
-
-OBJECT mapTool::m_objSelect(int frameX, int frameY)
-{
-	return OBJECT();
-}
-
+//======================================================================================
+//			 타일별 이미지 SELECT 하는 함수()
+//======================================================================================
 BACKGROUND mapTool::m_backGroundSelect(int imageX)
 {
 	if (imageX == 0)
@@ -215,6 +265,47 @@ WALL mapTool::m_wallSelect(int imageX)
 	}
 }
 
+TERRAIN mapTool::m_terrainSelect(int frameX, int frameY)
+{
+	return TERRAIN();
+}
+
+OBJECT mapTool::m_objSelect(int frameX, int frameY)
+{
+	return OBJECT();
+}
+// 타일별 이미지 SELECT 하는 함수 끝
+
+//======================================================================================
+//			 타일맵 메뉴 타일별 랜더 함수()
+//======================================================================================
+
+void mapTool::onceTileMenuRender()
+{
+	printText(CAMERAMANAGER->getCameraDC(), subject[0].c_str(), "나눔스퀘어_ac ExtraBold", WINSIZEX - 270, 210, 40, RGB(0, 0, 0), true, RGB(255, 0, 255));
+	for (int i = 0; i < GROUNDTILEX; i++)
+		IconGround[i]->render(CAMERAMANAGER->getCameraDC(), m_groundTiles[i].m_rcTile.left + (i * 15), m_groundTiles[i].m_rcTile.top);
+
+	printText(CAMERAMANAGER->getCameraDC(), subject[1].c_str(), "나눔스퀘어_ac ExtraBold", WINSIZEX - 250, 360, 40, RGB(0, 0, 0), true, RGB(255, 0, 255));
+	for (int i = 0; i < WALLTILEX; i++)
+		IconWall[i]->render(CAMERAMANAGER->getCameraDC(), m_wallTiles[i].m_rcTile.left + (i * 100), m_wallTiles[i].m_rcTile.top);
+}
+
+void mapTool::terrainMenuRender()
+{
+}
+
+void mapTool::objectMenuRender()
+{
+
+}
+//타일맵 메뉴 타일별 랜더 함수 처리 끝
+
+
+//======================================================================================
+//			 타일맵 타일별 이미지 랜더 함수()
+//======================================================================================
+
 void mapTool::onceTileRender()
 {
 	if (GR_OnceTile.m_backGroun != BR_NULL)
@@ -232,11 +323,17 @@ void mapTool::terrainTileRender()
 {
 }
 
+
+
 void mapTool::objectTileRender()
 {
 
 }
+//타일맵 타일별 이미지 랜더 함수 끝
 
+//======================================================================================
+//			타일별 정렬 함수()
+//======================================================================================
 void mapTool::OnceTileIconRange()
 {
 	// << 오른쪽 맵 셋팅 >>
@@ -245,9 +342,9 @@ void mapTool::OnceTileIconRange()
 		// 바닥 맵툴 이미지 좌표 설정을 해준다.( left , top , right , bottom )
 		SetRect(&m_groundTiles[i - 1].m_rcTile,
 			((WINSIZEX / 2 + 290) - IconGround[i - 1]->getWidth()) + (i * OBJ_TILESIZE),
-			250,
+			270,
 			((WINSIZEX / 2 + 290) - IconGround[i - 1]->getWidth()) + (i* OBJ_TILESIZE + OBJ_TILESIZE),
-			250 + IconGround[i - 1]->getWidth());
+			270 + IconGround[i - 1]->getWidth());
 		m_groundTiles[i].m_terrainX = i;
 	}
 
@@ -255,10 +352,29 @@ void mapTool::OnceTileIconRange()
 	{   // 벽 맵툴 이미지 좌표 설정을 해준다.
 		SetRect(&m_wallTiles[i].m_rcTile,
 			((WINSIZEX / 2 + 420) - IconWall[i]->getWidth()) + (i* OBJ_TILESIZE),
-			380,
+			410,
 			((WINSIZEX / 2 + 420) - IconWall[i]->getWidth()) + (i* OBJ_TILESIZE + OBJ_TILESIZE),
-			380 + IconWall[i]->getWidth());
+			410 + IconWall[i]->getWidth());
 		m_wallTiles[i].m_terrainX = i;
 	}
 
 }
+
+void mapTool::updateRect() // 업데이트 되는 렉트위치(ui버튼)
+{
+	SetRect(&m_nextPageImg.m_rc,
+		WINSIZEX - 90,
+		125,
+		(WINSIZEX - 90) + m_nextPageImg.m_img->getWidth(),
+		125 + m_nextPageImg.m_img->getHeight()
+		);
+	
+	SetRect(&m_beforePageImg.m_rc,
+		WINSIZEX / 2 + 250,
+		125,
+		(WINSIZEX / 2 + 250) + m_beforePageImg.m_img->getWidth(),
+		125 + m_beforePageImg.m_img->getHeight()
+	);
+}
+
+

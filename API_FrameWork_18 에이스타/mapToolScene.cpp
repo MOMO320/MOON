@@ -23,7 +23,7 @@ void mapToolScene::release()
 
 void mapToolScene::update()
 {
-
+	m_mapTool->update();
 }
 
 void mapToolScene::render()
@@ -33,8 +33,8 @@ void mapToolScene::render()
 	m_mapTool->mapToolMenuRender();
 }
 
-//void mapToolScene::setMap()
-//{
-//	m_mapTool->setMap();
-//}
+void mapToolScene::setMap()
+{
+	m_mapTool->setMap();
+}
 
