@@ -6,8 +6,14 @@
 #define GR_TILESIZEX 1280	// 그라운드 타일 사이즈 x
 #define GR_TILESIZEY 720	// 그라운드 타일 사이즈 y
 
-#define BACKTILEX 20	//왼쪽화면 타일 사이즈 X
-#define BACKTILEY 20	//왼쪽화면 타일 사이즈 Y
+#define BACKTILEX 40	//왼쪽화면 타일 사이즈 X
+#define BACKTILEY 40	//왼쪽화면 타일 사이즈 Y
+
+#define TERRAINSIZEX 2	// 터레인 이미지 사이즈 X
+#define TERRAINSIZEY 4  // 터레인 이미지 사이즈 Y
+
+#define OBJECTSIZEX 4   // 오브젝트 이미지 사이즈 X
+#define OBJECTSIZEY 4	// 오브젝트 이미지 사이즈 Y
 
 #define TILESIZEX TILEX * TILESIZE
 #define TILESIZEY TILEY * TILESIZE
@@ -32,14 +38,14 @@ enum WALL
 enum TERRAIN
 {
 	// 없을때 , 산성   ,   떨어질때 , 던전시작위치 , 던전 나갈때 위치
-	TR_NULL, TR_ACID, TR_FALL, TR_START, TR_END
+	 TR_ACID, TR_FALL, TR_START, TR_END ,TR_NULL,
 };
 
 // 오브젝트( EX: 지형위쪽에 배치. 움직이거나 부서지나 하는 녀석 등등 변화를 줄 수 있는 물체 )
 enum OBJECT
 {
-	// 없음  , 보물 상자    ,  나  무   ,    주머니	     ,   	던전문		,  온천
-	OBJ_NULL, OBJ_TREASUREBOX, OBJ_TREE, OBJ_POCKET, OBJ_DUNGENONDOOR, OBJ_HOTSPRING
+	//  보물 상자    ,  나  무   , 못지나가는 오브젝트,	던전문	     ,   밟을 수 있는,
+	 OBJ_TREASUREBOX, OBJ_TREE, OBJ_DONGO, OBJ_DUNGENONDOOR, OBJ_GO ,OBJ_NULL
 };
 
 // 타일 구조체
@@ -53,27 +59,35 @@ struct tagOnceTile
 	int			m_x;
 };
 
-
+// 왼쪽에 타일 구조체
 struct tagTile
 {
 	TERRAIN m_terrain;
 	OBJECT	m_obj;
 	RECT	m_rc;
+	image*	m_image;
 
 	int     m_terrainFrameX;
 	int     m_terrainFrameY;
-	int     m_objFrameX;
-	int     m_objFrameY;
+	int     m_objFrameX[3];
+	int     m_objFrameY[3];
+
+	
+
 };
 
 // 이미지 타일 구조체
 struct tagSampleTile
 {
 	RECT m_rcTile;
+
 	int	 m_terrainX;
 	int  m_terrainY;
 	int  m_terrainFrameX;
 	int  m_terrainFrameY;
+
+	int m_objFrameX;
+	int m_objFrameY;
 };
 
 struct tagCurrentTile
@@ -104,6 +118,9 @@ public:
 
 	void mapToolSetUp();
 	void setMap();
+	void setOnceTile();		// setMap안에들어갈것
+	void setTerrain();		// setMap안에들어갈것
+	void setObject(tagSampleTile _tagSample[],int _objCount, tagTile _tagTile[] , int _objSelectX ,int _objSelectY);		// setMap안에들어갈것(object) 형태들 담을함수
 
 	void save();
 	void load();
@@ -113,33 +130,56 @@ public:
 	BACKGROUND 	m_backGroundSelect(int imageX);
 	WALL		m_wallSelect(int imageX);
 
+	int getMaptoolBookCount() { return m_mapToolBookCount; }
+	int		 m_mapToolBookCount;
+
 private:
+
 	void onceTileMenuRender();		// 한번에 까는 타일 메뉴 렌더
 	void onceTileRender();			// 한번에 까는 타일 랜더 ( 바닥, 벽 )
 	
 	void terrainMenuRender();		// 지형 타일 메뉴 렌더
 	void terrainTileRender();		// 지형 타일 랜더
 
-	void objectMenuRender();		// 오브젝트 메뉴 랜더
-	void objectTileRender();		// 오브젝트 타일 랜더
+	void FirObjectMenuRender();		// 오브젝트 메뉴 랜더
+	void SecObjectMenuRender();		// 오브젝트 메뉴 랜더
+	void ThirObjectMenuRender();	// 오브젝트 메뉴 랜더
+
+	void objectTileRender();			
+	void SecobjectTileRender();			
+	void ThirobjectTileRender();			
 
 	void OnceTileIconRange();		// 한번에 그려주는 타일 아이콘 정렬(mapToolSetUp)에 들어갈거
+	void TerrainRange();			// 터레인 타일 메뉴에 정렬 해주는 함수
+	void FirObjectRange();			// 오브젝트 타일 메뉴에 정렬 해주는 함수
+	void SceObjectRange();			// 오브젝트 타일 메뉴에 정렬 해주는 함수
+	void ThirObjectRange();			// 오브젝트 타일 메뉴에 정렬 해주는 함수
 
 	void updateRect();				// 업데이트 되는 렉트위치
 
 	void setUi();					// ui버튼 클릭 연산처리 
 private:
-	tagCurrentTile  m_currentTile;	//현재 지목된 타일
+	tagCurrentTile  m_currentTile;		//현재 지목된 타일
+	tagCurrentTile	m_currentTerrain;	// 현재 지목된 terrain타일
+	tagCurrentTile  m_currentObj;
 	tagTile			m_tiles[BACKTILEX * BACKTILEY];
 	tagSampleTile	m_groundTiles[GROUNDTILEX];  // view ground 타일
 	tagSampleTile	m_wallTiles[WALLTILEX];		 // view 
+	tagSampleTile	m_terrainTiles[TERRAINSIZEX * TERRAINSIZEY];
+	tagSampleTile	m_objectTiles[OBJECTSIZEX * OBJECTSIZEY];
+	tagSampleTile   m_SecObjectTiles[OBJECTSIZEX * OBJECTSIZEY];
+	tagSampleTile   m_ThirdObjectTiles[OBJECTSIZEX * OBJECTSIZEY];
+	
 	tagOnceTile		GR_OnceTile; // 바닥 && 벽
 	tagOnceTile		WA_OnceTile;
+
+	RECT m_DrawImage;
 
 	// 아이콘 타일
 	image* IconGround[3];
 	image* IconWall[2];
-
+	image* img_terrainTiles;
+	image* img_objectTiles[3];
 
 	// 깔아주는 타일
 	image* m_DungeonTile[3];
@@ -150,12 +190,12 @@ private:
 	bool m_isWallChoice;
 
 	//맵툴북 페이지 카운트
-	int		 m_mapToolBookCount;
+
 	imageButton	 m_nextPageImg;
 	imageButton	 m_beforePageImg;
 
 	// mapTool제목
 	std::string subject[3] = { " [ 바닥 ] ", " [ 벽 ] ", " [ 오브젝트 ] " };
-	std::string tileTypeName[3] = { " GROUND " , " TERRAIN " , "  OBJECT " };
+	std::string tileTypeName[5] = { " GROUND " , " TERRAIN " , "  OBJECT1 " ,"  OBJECT2 " , "  OBJECT3 " };
 };
 

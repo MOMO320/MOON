@@ -3,7 +3,8 @@
 
 
 mainGame::mainGame()
-	:m_mapTool(new mapTool), m_startMenuScene(new startMenuScene), m_mapToolScene(new mapToolScene)
+	:m_mapTool(new mapTool), m_startMenuScene(new startMenuScene), m_mapToolScene(new mapToolScene),
+	m_maptoolKind(ONCETILE)
 {
 }
 
@@ -48,14 +49,19 @@ HRESULT mainGame::init()
 	////  깔아주는 타일
 	IMAGEMANAGER->addImage("던전룸1", "images/Maptool/Dungeon/Flow/Room1.bmp", 1280, 720, true, RGB(255, 0, 255));
 	IMAGEMANAGER->addImage("던전룸2", "images/Maptool/Dungeon/Flow/Room2.bmp", 1280, 720, true, RGB(255, 0, 255));
-	IMAGEMANAGER->addImage("보스룸", "images/Maptool/Dungeon/Flow/bossRoom.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("보스룸", "images/Maptool/Dungeon/Flow/bossRoom.bmp", WINSIZEX*2, WINSIZEY*2, true, RGB(255, 0, 255));
 
 	//// 2. 벽(wall)		
 	IMAGEMANAGER->addImage("던전벽1", "images/Maptool/Dungeon/Wall/Wall1.bmp", WINSIZEX, WINSIZEY, true, RGB(255, 0, 255));
-	IMAGEMANAGER->addImage("던전벽2", "images/Maptool/Dungeon/Wall/Wall2.bmp", WINSIZEX, WINSIZEY, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("던전벽2", "images/Maptool/Dungeon/Wall/Wall2.bmp", WINSIZEX *2, WINSIZEY *2, true, RGB(255, 0, 255));
 
 	//// 3. 오브젝트(던전용)
-	//IMAGEMANAGER->addImage(""
+	IMAGEMANAGER->addFrameImage("통과되는오브젝트", "images/Maptool/Dungeon/object/throwObjectTile.bmp", 320, 320, 4, 4, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addFrameImage("통과안되는오브젝트1", "images/Maptool/Dungeon/object/ObjectTiles1.bmp", 320, 320, 4, 4, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addFrameImage("통과안되는오브젝트2", "images/Maptool/Dungeon/object/ObjectTiles2.bmp", 320, 320, 4, 4, true, RGB(255, 0, 255));
+
+	// 4. 산성 터레인
+	IMAGEMANAGER->addFrameImage("산성터레인", "images/Maptool/Dungeon/Terrain/terrainTile.bmp", 320, 160, 4, 2, true, RGB(255, 0, 255));
 
 	////--------------------------------------------------------------------------------------------------------
 	ANIMATIONMANAGER->addDefAnimation("bubbleAni1", "시작메뉴버블바탕", 8, false, true);
@@ -156,7 +162,9 @@ void mainGame::render(/*HDC hdc*/)
 
 void mainGame::setMap()
 {
-	m_mapToolScene->setMap();
+
+  m_mapToolScene->setMap();
+
 }
 
 

@@ -27,5 +27,5 @@ private:
 	startMenuScene*		m_startMenuScene;
 	mapToolScene*		m_mapToolScene;
 
-
+	MAPTOOLKIND			m_maptoolKind;
 };
