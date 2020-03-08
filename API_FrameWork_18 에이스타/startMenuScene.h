@@ -15,6 +15,7 @@ public:
 	void render();
 	void choiceRender();
 	GAMEMENU choiceMenu(); // mainGame에 넘겨주는 역활
+	void setChoiceMenu(int _menuCount) { m_menuCount = _menuCount; }
 
 private:
 	image* m_startMenuBubble[2];

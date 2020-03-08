@@ -67,6 +67,21 @@
     <Filter Include="mainGame\gameScene">
       <UniqueIdentifier>{785402eb-6eeb-4dfe-a319-1dc4ccdefee9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="mainGame\gameScene\map">
+      <UniqueIdentifier>{f449fbbe-a7fc-4613-95cb-29ca9bcebea2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainGame\gameScene\DungeonScene">
+      <UniqueIdentifier>{a6015995-055c-4ef3-b4f1-71d54f6c0421}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainGame\gameScene\mapToolScene">
+      <UniqueIdentifier>{ab2c7c40-f8dd-4470-ab41-f46ac333fad4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainGame\gameScene\TestScene">
+      <UniqueIdentifier>{ea0faf09-fafb-4e77-a2c7-ff36d7767790}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainGame\player">
+      <UniqueIdentifier>{6cd1310c-63ec-4865-afea-3a7259ff4233}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -165,9 +180,6 @@
     <ClInclude Include="mapTool.h">
       <Filter>mainGame\mapTool</Filter>
     </ClInclude>
-    <ClInclude Include="mapToolScene.h">
-      <Filter>mainGame\gameScene</Filter>
-    </ClInclude>
     <ClInclude Include="mainGame.h">
       <Filter>mainGame</Filter>
     </ClInclude>
@@ -179,6 +191,18 @@
     </ClInclude>
     <ClInclude Include="cameraManager.h">
       <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="dungeonMap.h">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClInclude>
+    <ClInclude Include="DugeonScene.h">
+      <Filter>mainGame\gameScene\DungeonScene</Filter>
+    </ClInclude>
+    <ClInclude Include="mapToolScene.h">
+      <Filter>mainGame\gameScene\mapToolScene</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>mainGame\player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -260,9 +284,6 @@
     <ClCompile Include="mapTool.cpp">
       <Filter>mainGame\mapTool</Filter>
     </ClCompile>
-    <ClCompile Include="mapToolScene.cpp">
-      <Filter>mainGame\gameScene</Filter>
-    </ClCompile>
     <ClCompile Include="mainGame.cpp">
       <Filter>mainGame</Filter>
     </ClCompile>
@@ -271,6 +292,18 @@
     </ClCompile>
     <ClCompile Include="cameraManager.cpp">
       <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="dungeonMap.cpp">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClCompile>
+    <ClCompile Include="DugeonScene.cpp">
+      <Filter>mainGame\gameScene\DungeonScene</Filter>
+    </ClCompile>
+    <ClCompile Include="mapToolScene.cpp">
+      <Filter>mainGame\gameScene\mapToolScene</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>mainGame\player</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

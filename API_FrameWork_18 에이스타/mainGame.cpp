@@ -4,7 +4,7 @@
 
 mainGame::mainGame()
 	:m_mapTool(new mapTool), m_startMenuScene(new startMenuScene), m_mapToolScene(new mapToolScene),
-	m_maptoolKind(ONCETILE)
+	m_maptoolKind(ONCETILE) , m_DungeonScene1(new DugeonScene)
 {
 }
 
@@ -13,6 +13,8 @@ mainGame::~mainGame()
 {
 	delete m_mapTool;
 	delete m_mapToolScene;
+	delete m_DungeonScene1;
+	delete m_startMenuScene;
 }
 
 HRESULT mainGame::init()
@@ -37,7 +39,7 @@ HRESULT mainGame::init()
 	IMAGEMANAGER->addImage("박스닫힘", "images/Maptool/Dungeon/Base/BOXCLOSE.bmp", 281 * 2, 273 * 2, true, RGB(255, 0, 255));
 	IMAGEMANAGER->addImage("다음페이지", "images/Maptool/Dungeon/Base/nextPage.bmp", 32 * 2, 32 * 2, true, RGB(255, 0, 255)); 
 	IMAGEMANAGER->addImage("이전페이지", "images/Maptool/Dungeon/Base/beforePage.bmp", 32 * 2, 32 * 2, true, RGB(255, 0, 255));
-
+	IMAGEMANAGER->addImage("세이브로드버튼", "images/Maptool/Menu/saveLoad.bmp", 580 / 3, 191 / 3, true, RGB(255, 0, 255));
 
 	//// - 아이콘( 바닥, 벽)
 	IMAGEMANAGER->addImage("ic던전룸1", "images/Maptool/Dungeon/Flow/Room1.bmp", 576 / 8, 360 / 5, true, RGB(255, 0, 255));
@@ -71,8 +73,9 @@ HRESULT mainGame::init()
 	////--------------------------------------------------------------------------------------------------------
 	SCENEMANAGER->addScene("StartSceneMenu", m_startMenuScene);
 	SCENEMANAGER->addScene("MapToolScene", m_mapToolScene);
+	SCENEMANAGER->addScene("DungeonScene1", m_DungeonScene1);
 
-	SCENEMANAGER->changeScene("StartSceneMenu");
+	SCENEMANAGER->scenePush("StartSceneMenu");
 	m_mapTool->init();
 	//--------------------------------------------------------------------------------------------------------
 
@@ -88,6 +91,7 @@ void mainGame::release()
 {
 	gameNode::release();
 	SCENEMANAGER->release();
+
 }
 
 void mainGame::update()
@@ -100,12 +104,19 @@ void mainGame::update()
 	switch (m_startMenuScene->choiceMenu())
 	{
 	case GAME:
+		if (KEYMANAGER->isOnceKeyDown('Z'))
+		{
+			SCENEMANAGER->scenePush("DungeonScene1");
+		}
 
 		break;
 
 	case MAPTOOL:
 		if (KEYMANAGER->isOnceKeyDown('Z'))
+		{
 			SCENEMANAGER->scenePush("MapToolScene");
+	
+		}
 		break;
 
 	case END:

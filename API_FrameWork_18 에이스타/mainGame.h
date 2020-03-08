@@ -3,6 +3,7 @@
 #include"mapTool.h"
 #include"startMenuScene.h"
 #include"mapToolScene.h"
+#include"DugeonScene.h"
 
 class mainGame : public gameNode
 {
@@ -26,6 +27,7 @@ private:
 	mapTool*			m_mapTool;
 	startMenuScene*		m_startMenuScene;
 	mapToolScene*		m_mapToolScene;
+	DugeonScene*		m_DungeonScene1;
 
 	MAPTOOLKIND			m_maptoolKind;
 };

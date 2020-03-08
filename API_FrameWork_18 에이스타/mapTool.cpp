@@ -38,13 +38,17 @@ HRESULT mapTool::init()
 	img_objectTiles[1] = IMAGEMANAGER->findImage("통과안되는오브젝트1");
 	img_objectTiles[2] = IMAGEMANAGER->findImage("통과안되는오브젝트2");
 
+	m_saveButton.m_img = IMAGEMANAGER->findImage("세이브로드버튼");
+	m_loadButton.m_img = IMAGEMANAGER->findImage("세이브로드버튼");
+
 	mapToolSetUp();
 
-	GR_OnceTile.m_backGroun = BR_NULL;
-	WA_OnceTile.m_wall = WA_NULL;
+	m_onceTile[0].m_backGroun = BR_NULL;
+	m_onceTile[1].m_wall = WA_NULL;
 
 	for (int i = 0; i < BACKTILEX * BACKTILEY; i++)
 	{
+		m_tiles[i].m_terrain = TR_NULL;
 		m_tiles[i].m_terrainFrameX = 10;
 		m_tiles[i].m_terrainFrameY = 10;
 		m_tiles[i].m_objFrameX[1] = 10;
@@ -67,12 +71,12 @@ HRESULT mapTool::init()
 void mapTool::release()
 {
 	IMAGEMANAGER->release();
+	CAMERAMANAGER->relaese();
+	CAMERAMANAGER->releaseSingleton();
 }
 
 void mapTool::update()
 {
-	
-
 	if (KEYMANAGER->isStayKeyDown(VK_LEFT) && CAMERAMANAGER->getCameraXY().x > 0)
 	{
 		CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x - 50, CAMERAMANAGER->getCameraCenter().y));
@@ -96,8 +100,6 @@ void mapTool::update()
 		CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x, CAMERAMANAGER->getCameraCenter().y + 50));
 		OffsetRect(&m_DrawImage, 0, 50);
 	}
-
-
 }
 
 void mapTool::debugRender()  // 상자만 출력
@@ -111,7 +113,6 @@ void mapTool::debugRender()  // 상자만 출력
 				m_tiles[i*BACKTILEX + j].m_rc.top, m_tiles[i*BACKTILEX + j].m_rc.right, m_tiles[i*BACKTILEX + j].m_rc.bottom);
 		}
 	}
-
 }
 
 void mapTool::render() // 타일 이미지 뿌려주기(오른쪽)
@@ -132,6 +133,13 @@ void mapTool::mapToolMenuRender()
 	m_nextPageImg.m_img->render(CAMERAMANAGER->getCameraDC(), m_nextPageImg.m_rc.left, m_nextPageImg.m_rc.top);
 	m_beforePageImg.m_img->render(CAMERAMANAGER->getCameraDC(), m_beforePageImg.m_rc.left, m_beforePageImg.m_rc.top);
 	
+	// 세이브 로드 버튼 랜더
+	m_saveButton.m_img->render(CAMERAMANAGER->getCameraDC(), m_saveButton.m_rc.left, m_saveButton.m_rc.top);
+	m_loadButton.m_img->render(CAMERAMANAGER->getCameraDC(), m_loadButton.m_rc.left, m_loadButton.m_rc.top);
+	
+	printText(CAMERAMANAGER->getCameraDC(), saveLoad[0].c_str(), "나눔스퀘어_ac ExtraBold", m_saveButton.m_rc.left+35, m_saveButton.m_rc.top+10, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
+	printText(CAMERAMANAGER->getCameraDC(), saveLoad[1].c_str(), "나눔스퀘어_ac ExtraBold", m_loadButton.m_rc.left + 35, m_loadButton.m_rc.top + 10, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
+
 	switch (m_mapToolBookCount)
 	{
 	case ONCETILE:
@@ -141,13 +149,13 @@ void mapTool::mapToolMenuRender()
 	case TERRAINTILE:
 		printText(CAMERAMANAGER->getCameraDC(), tileTypeName[m_mapToolBookCount].c_str(), "나눔스퀘어_ac ExtraBold", WINSIZEX - 315, 135, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
 		terrainMenuRender();
-		for (int i = 0; i < (TERRAINSIZEX* TERRAINSIZEY) - 2; i++)
-		{
-			AlphaRectangle(CAMERAMANAGER->getCameraDC(), m_terrainTiles[i].m_rcTile.left,
-				m_terrainTiles[i].m_rcTile.top,
-				m_terrainTiles[i].m_rcTile.right,
-				m_terrainTiles[i].m_rcTile.bottom);
-		}
+		//for (int i = 0; i < (TERRAINSIZEX* TERRAINSIZEY) - 2; i++)
+		//{
+		//	AlphaRectangle(CAMERAMANAGER->getCameraDC(), m_terrainTiles[i].m_rcTile.left,
+		//		m_terrainTiles[i].m_rcTile.top,
+		//		m_terrainTiles[i].m_rcTile.right,
+		//		m_terrainTiles[i].m_rcTile.bottom);
+		//}
 		break;
 	case FIROBJECTTILE:
 		printText(CAMERAMANAGER->getCameraDC(), tileTypeName[m_mapToolBookCount].c_str(), "나눔스퀘어_ac ExtraBold", WINSIZEX - 330, 135, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
@@ -164,19 +172,31 @@ void mapTool::mapToolMenuRender()
 		ThirObjectMenuRender();
 		break;
 
-
 	default:
 		break;
 	}
-	
 }
 
 void mapTool::save()
 {
+	_map[0] = CreateFile("map.map", GENERIC_WRITE, NULL, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	WriteFile(_map[0], m_tiles, sizeof(tagTile)*(BACKTILEX * BACKTILEY), &write[0], NULL);
+	CloseHandle(_map[0]);
+
+	_map[1] = CreateFile("onceMap.map", GENERIC_WRITE, NULL, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	WriteFile(_map[1], m_onceTile, sizeof(tagOnceTile)*(2), &write[1], NULL);
+	CloseHandle(_map[1]);
 }
 
 void mapTool::load()
 {
+	ZeroMemory(&m_tiles, sizeof(tagTile)*(BACKTILEX * BACKTILEY));
+	_map[0] = CreateFile("map.map", GENERIC_READ, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	ReadFile(_map[0], m_tiles, sizeof(tagTile)*(BACKTILEX * BACKTILEY), &read, NULL);
+
+	ZeroMemory(&m_onceTile, sizeof(tagOnceTile)*(2));
+	_map[1] =  CreateFile("onceMap.map", GENERIC_READ, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	ReadFile(_map[1], m_onceTile, sizeof(tagOnceTile)*(2), &read ,NULL);
 }
 
 //======================================================================================
@@ -202,13 +222,12 @@ void mapTool::mapToolSetUp()
 				j*OBJ_TILESIZE,
 				i*OBJ_TILESIZE,
 				j*OBJ_TILESIZE + OBJ_TILESIZE,
-				i*OBJ_TILESIZE + OBJ_TILESIZE);
-		
+				i*OBJ_TILESIZE + OBJ_TILESIZE);	
 		}
 	}
 	// [ m_OnceTile ]
-	SetRect(&GR_OnceTile.m_rc, 0, 0, GR_TILESIZEX, GR_TILESIZEY);
-	SetRect(&WA_OnceTile.m_rc, 0, 0, GR_TILESIZEX, GR_TILESIZEY);
+	SetRect(&m_onceTile[0].m_rc, 0, 0, GR_TILESIZEX, GR_TILESIZEY);
+	SetRect(&m_onceTile[1].m_rc, 0, 0, GR_TILESIZEX, GR_TILESIZEY);
 }
 
 void mapTool::setMap()
@@ -368,11 +387,11 @@ void mapTool::setOnceTile()
 	{
 		for (int i = 0; i < BACKTILEX * BACKTILEY; i++)
 		{
-			if (PtInRect(&GR_OnceTile.m_rc, m_ptMouse))
+			if (PtInRect(&m_onceTile[0].m_rc, m_ptMouse))
 			{
-				GR_OnceTile.m_x = m_currentTile.x;
-				GR_OnceTile.m_backGroun = m_backGroundSelect(m_currentTile.x);
-				GR_OnceTile.m_img = m_DungeonTile[GR_OnceTile.m_backGroun];
+				m_onceTile[0].m_x = m_currentTile.x;
+				m_onceTile[0].m_backGroun = m_backGroundSelect(m_currentTile.x);
+				m_onceTile[0].m_img = m_DungeonTile[m_onceTile[0].m_backGroun];
 				m_isGroundChoice = false;
 			}
 			else m_isGroundChoice = false;
@@ -386,11 +405,11 @@ void mapTool::setOnceTile()
 	{
 		for (int i = 0; i < BACKTILEX * BACKTILEY; i++)
 		{
-			if (PtInRect(&WA_OnceTile.m_rc, m_ptMouse))
+			if (PtInRect(&m_onceTile[1].m_rc, m_ptMouse))
 			{
-				WA_OnceTile.m_x = m_currentTile.x;
-				WA_OnceTile.m_wall = m_wallSelect(m_currentTile.x);
-				WA_OnceTile.m_img = m_WallTile[WA_OnceTile.m_wall];
+				m_onceTile[1].m_x = m_currentTile.x;
+				m_onceTile[1].m_wall = m_wallSelect(m_currentTile.x);
+				m_onceTile[1].m_img = m_WallTile[m_onceTile[1].m_wall];
 				m_isWallChoice = false;
 			}
 			else m_isWallChoice = false;
@@ -467,7 +486,6 @@ void mapTool::setObject(tagSampleTile _tagSample[], int _objCount, tagTile _tagT
 
 				_tagTile[i].m_obj = m_objSelect(_objSelectX, _objSelectY);
 
-				InvalidateRect(m_hWnd, NULL, false);
 				break;
 			}
 		}
@@ -491,8 +509,16 @@ void mapTool::setUi()
 		else
 			m_mapToolBookCount--;
 	}
-}
 
+	if (PtInRect(&m_saveButton.m_rc, m_ptMouse))
+	{
+		save();
+	}
+	if (PtInRect(&m_loadButton.m_rc, m_ptMouse))
+	{
+		load();
+	}
+}
 
 //======================================================================================
 //			 타일맵 메뉴 타일별 랜더 함수()
@@ -538,14 +564,14 @@ void mapTool::ThirObjectMenuRender()
 
 void mapTool::onceTileRender()
 {
-	if (GR_OnceTile.m_backGroun != BR_NULL)
+	if (m_onceTile[0].m_backGroun != BR_NULL)
 	{
-		GR_OnceTile.m_img->render(getMemDC(), 0, 0);
+		m_onceTile[0].m_img->render(getMemDC(), 0, 0);
 	}
 
-	if (WA_OnceTile.m_wall != WA_NULL)
+	if (m_onceTile[1].m_wall != WA_NULL)
 	{
-		WA_OnceTile.m_img->render(getMemDC(), 0, 0);
+		m_onceTile[1].m_img->render(getMemDC(), 0, 0);
 	}
 }
 
@@ -669,6 +695,19 @@ void mapTool::updateRect() // 업데이트 되는 렉트위치(ui버튼)
 		(WINSIZEX / 2 + 250) + m_beforePageImg.m_img->getWidth(),
 		125 + m_beforePageImg.m_img->getHeight()
 	);
+
+	// save , load 버튼 위치 설정 
+	SetRect(&m_saveButton.m_rc,
+		WINSIZEX/2 + 240,
+		WINSIZEY - 112,
+		(WINSIZEX / 2 + 240) + m_saveButton.m_img->getWidth(),
+		(WINSIZEY - 112) + m_saveButton.m_img->getHeight());
+
+	SetRect(&m_loadButton.m_rc,
+		WINSIZEX - 200,
+		WINSIZEY - 112,
+		(WINSIZEX - 200) + m_loadButton.m_img->getWidth(),
+		(WINSIZEY - 112) + m_loadButton.m_img->getHeight());
 }
 
 

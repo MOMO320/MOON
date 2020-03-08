@@ -41,6 +41,7 @@ void startMenuScene::update()
 
 	if (KEYMANAGER->isOnceKeyDown(VK_UP) && m_menuCount > 0)
 		m_menuCount--;
+
 }
 
 void startMenuScene::render()

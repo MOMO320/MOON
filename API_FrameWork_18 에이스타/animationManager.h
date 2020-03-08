@@ -12,7 +12,6 @@ private:
 	arrAnimation _animation;
 
 
-
 public:
 	animationManager();
 	~animationManager();

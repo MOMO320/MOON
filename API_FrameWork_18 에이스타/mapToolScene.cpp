@@ -24,6 +24,11 @@ void mapToolScene::release()
 void mapToolScene::update()
 {
 	m_mapTool->update();
+
+	if (KEYMANAGER->isOnceKeyDown('X'))
+	{
+		SCENEMANAGER->scenePop();
+	}
 }
 
 void mapToolScene::render()

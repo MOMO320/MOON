@@ -155,6 +155,8 @@
     <ClInclude Include="camel.h" />
     <ClInclude Include="cameraManager.h" />
     <ClInclude Include="commonMacroFunction.h" />
+    <ClInclude Include="DugeonScene.h" />
+    <ClInclude Include="dungeonMap.h" />
     <ClInclude Include="effect.h" />
     <ClInclude Include="effectManager.h" />
     <ClInclude Include="effectTest.h" />
@@ -169,6 +171,7 @@
     <ClInclude Include="mainGame.h" />
     <ClInclude Include="mapTool.h" />
     <ClInclude Include="mapToolScene.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="progressBar.h" />
     <ClInclude Include="randomFunction.h" />
     <ClInclude Include="Resource.h" />
@@ -192,6 +195,8 @@
     <ClCompile Include="aStar.cpp" />
     <ClCompile Include="camel.cpp" />
     <ClCompile Include="cameraManager.cpp" />
+    <ClCompile Include="DugeonScene.cpp" />
+    <ClCompile Include="dungeonMap.cpp" />
     <ClCompile Include="effect.cpp" />
     <ClCompile Include="effectManager.cpp" />
     <ClCompile Include="effectTest.cpp" />
@@ -204,6 +209,7 @@
     <ClCompile Include="mainGame.cpp" />
     <ClCompile Include="mapTool.cpp" />
     <ClCompile Include="mapToolScene.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="progressBar.cpp" />
     <ClCompile Include="sceneManager.cpp" />
     <ClCompile Include="soundManager.cpp" />
