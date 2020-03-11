@@ -1,6 +1,6 @@
 #pragma once
 #include "gameNode.h"
-#include "dungeonMap.h"
+#include "dungeonMap1.h"
 
 enum PLAYERDIRECTION
 {
@@ -23,7 +23,8 @@ public:
 
 	void characterMove();
 	void setCharacPosition(RECT rc);
-	void setTankMapMemoryAdress(dungeonMap* _dungMap) { m_dungeonMap = _dungMap; }
+	void setTankMapMemoryAdress(dungeonMap1* _dungMap1) { m_dunMap1 = _dungMap1; }
+	RECT getPlayerRect() { return _rc; }
 
 public:
 	int m_frameY;
@@ -35,7 +36,7 @@ public:
 private:
 	RECT _rc;
 	RECT m_playerInPlace;
-	dungeonMap * m_dungeonMap;
+	dungeonMap1 * m_dunMap1;
 	PLAYERDIRECTION m_playerDirect;
 	image* m_img;
 

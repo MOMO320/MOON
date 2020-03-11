@@ -3,7 +3,8 @@
 
 
 mapTool::mapTool()
-	:m_isGroundChoice(false), m_isWallChoice(false), m_mapToolBookCount(0)
+	:m_isGroundChoice(false), m_isWallChoice(false), m_mapToolBookCount(0),
+	m_saveFileNum(0)
 {
 }
 
@@ -70,7 +71,7 @@ HRESULT mapTool::init()
 
 void mapTool::release()
 {
-	IMAGEMANAGER->release();
+	IMAGEMANAGER->deleteAll();
 	CAMERAMANAGER->relaese();
 	CAMERAMANAGER->releaseSingleton();
 }
@@ -133,13 +134,6 @@ void mapTool::mapToolMenuRender()
 	m_nextPageImg.m_img->render(CAMERAMANAGER->getCameraDC(), m_nextPageImg.m_rc.left, m_nextPageImg.m_rc.top);
 	m_beforePageImg.m_img->render(CAMERAMANAGER->getCameraDC(), m_beforePageImg.m_rc.left, m_beforePageImg.m_rc.top);
 	
-	// ¼¼ÀÌºê ·Îµå ¹öÆ° ·£´õ
-	m_saveButton.m_img->render(CAMERAMANAGER->getCameraDC(), m_saveButton.m_rc.left, m_saveButton.m_rc.top);
-	m_loadButton.m_img->render(CAMERAMANAGER->getCameraDC(), m_loadButton.m_rc.left, m_loadButton.m_rc.top);
-	
-	printText(CAMERAMANAGER->getCameraDC(), saveLoad[0].c_str(), "³ª´®½ºÄù¾î_ac ExtraBold", m_saveButton.m_rc.left+35, m_saveButton.m_rc.top+10, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
-	printText(CAMERAMANAGER->getCameraDC(), saveLoad[1].c_str(), "³ª´®½ºÄù¾î_ac ExtraBold", m_loadButton.m_rc.left + 35, m_loadButton.m_rc.top + 10, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
-
 	switch (m_mapToolBookCount)
 	{
 	case ONCETILE:
@@ -149,13 +143,7 @@ void mapTool::mapToolMenuRender()
 	case TERRAINTILE:
 		printText(CAMERAMANAGER->getCameraDC(), tileTypeName[m_mapToolBookCount].c_str(), "³ª´®½ºÄù¾î_ac ExtraBold", WINSIZEX - 315, 135, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
 		terrainMenuRender();
-		//for (int i = 0; i < (TERRAINSIZEX* TERRAINSIZEY) - 2; i++)
-		//{
-		//	AlphaRectangle(CAMERAMANAGER->getCameraDC(), m_terrainTiles[i].m_rcTile.left,
-		//		m_terrainTiles[i].m_rcTile.top,
-		//		m_terrainTiles[i].m_rcTile.right,
-		//		m_terrainTiles[i].m_rcTile.bottom);
-		//}
+
 		break;
 	case FIROBJECTTILE:
 		printText(CAMERAMANAGER->getCameraDC(), tileTypeName[m_mapToolBookCount].c_str(), "³ª´®½ºÄù¾î_ac ExtraBold", WINSIZEX - 330, 135, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
@@ -172,6 +160,26 @@ void mapTool::mapToolMenuRender()
 		ThirObjectMenuRender();
 		break;
 
+	case SAVEMENU:
+		// ¼¼ÀÌºê ·Îµå ¹öÆ° ·£´õ
+		printText(CAMERAMANAGER->getCameraDC(), tileTypeName[m_mapToolBookCount].c_str(), "³ª´®½ºÄù¾î_ac ExtraBold", WINSIZEX - 270, 135, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
+		m_saveButton.m_img->render(CAMERAMANAGER->getCameraDC(), m_saveButton.m_rc.left, m_saveButton.m_rc.top);
+		m_loadButton.m_img->render(CAMERAMANAGER->getCameraDC(), m_loadButton.m_rc.left, m_loadButton.m_rc.top);
+		printText(CAMERAMANAGER->getCameraDC(), saveLoad[0].c_str(), "³ª´®½ºÄù¾î_ac ExtraBold", m_saveButton.m_rc.left + 35, m_saveButton.m_rc.top + 10, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
+		printText(CAMERAMANAGER->getCameraDC(), saveLoad[1].c_str(), "³ª´®½ºÄù¾î_ac ExtraBold", m_loadButton.m_rc.left + 35, m_loadButton.m_rc.top + 10, 50, RGB(0, 0, 0), true, RGB(255, 0, 255));
+	
+		for (int i = 0; i< m_saveFileNum; i++)
+		{
+			printText(CAMERAMANAGER->getCameraDC(), vc_tileFileName.at(i).c_str(), "³ª´®½ºÄù¾î_ac ", m_saveFile[i].rc.left+30, m_saveFile[i].rc.top+5 , 20, RGB(0, 0, 0), true, RGB(255, 0, 255));
+			printText(CAMERAMANAGER->getCameraDC(), vc_tileFileName.at(i).c_str(), "³ª´®½ºÄù¾î_ac ", m_saveFile[i].rc.left+30, m_saveFile[i].rc.top + 30, 20, RGB(0, 0, 0), true, RGB(255, 0, 255));
+		}
+		
+		for (int i = 0; i < SAVEFILESIZE; i++)
+			AlphaRectangle(CAMERAMANAGER->getCameraDC(), m_saveFile[i].rc.left, m_saveFile[i].rc.top,
+				m_saveFile[i].rc.right, m_saveFile[i].rc.bottom);
+		
+		break;
+
 	default:
 		break;
 	}
@@ -179,23 +187,35 @@ void mapTool::mapToolMenuRender()
 
 void mapTool::save()
 {
-	_map[0] = CreateFile("map.map", GENERIC_WRITE, NULL, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	string name , nameOnce, file, count ;
+	name = "map"; nameOnce = "onceMap"; file = ".map";
+	count = std::to_string(m_saveFileNum);
+	name += count;
+	name += file;
+	nameOnce += count;
+	nameOnce += file;
+
+	_map[0] = CreateFile(name.c_str(), GENERIC_WRITE, NULL, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	WriteFile(_map[0], m_tiles, sizeof(tagTile)*(BACKTILEX * BACKTILEY), &write[0], NULL);
 	CloseHandle(_map[0]);
 
-	_map[1] = CreateFile("onceMap.map", GENERIC_WRITE, NULL, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	_map[1] = CreateFile(nameOnce.c_str(), GENERIC_WRITE, NULL, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	WriteFile(_map[1], m_onceTile, sizeof(tagOnceTile)*(2), &write[1], NULL);
 	CloseHandle(_map[1]);
+
+	vc_tileFileName.push_back(name);
+	vc_onceTileFileName.push_back(nameOnce);
+
 }
 
 void mapTool::load()
 {
 	ZeroMemory(&m_tiles, sizeof(tagTile)*(BACKTILEX * BACKTILEY));
-	_map[0] = CreateFile("map.map", GENERIC_READ, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	_map[0] = CreateFile("map1.map", GENERIC_READ, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	ReadFile(_map[0], m_tiles, sizeof(tagTile)*(BACKTILEX * BACKTILEY), &read, NULL);
 
 	ZeroMemory(&m_onceTile, sizeof(tagOnceTile)*(2));
-	_map[1] =  CreateFile("onceMap.map", GENERIC_READ, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	_map[1] =  CreateFile("onceMap1.map", GENERIC_READ, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	ReadFile(_map[1], m_onceTile, sizeof(tagOnceTile)*(2), &read ,NULL);
 }
 
@@ -210,6 +230,7 @@ void mapTool::mapToolSetUp()
 	FirObjectRange();
 	SceObjectRange();
 	ThirObjectRange();
+	saveFileRange();
 
 	// << ¿ÞÂÊ ¸Ê ¼ÂÆÃ >>
 	// [ m_tiles ]
@@ -284,9 +305,9 @@ void mapTool::OnceTileIconRange()
 }
 
 void mapTool::TerrainRange()
-{						//2
+{					  	   //2
 	for (int x = 0; x < TERRAINSIZEX; x++)
-	{						//4
+	{						 //4
 		for (int y = 0; y < TERRAINSIZEY; y++)
 		{
 			m_terrainTiles[x*TERRAINSIZEY + y].m_terrainFrameX = y;
@@ -307,7 +328,6 @@ void mapTool::FirObjectRange()
 	{
 		for (int y = 0; y < OBJECTSIZEY; y++)
 		{
-
 			m_objectTiles[x*OBJECTSIZEY + y].m_objFrameX = y;
 			m_objectTiles[x*OBJECTSIZEY + y].m_objFrameY= x;
 
@@ -353,6 +373,18 @@ void mapTool::ThirObjectRange()
 				((WINSIZEX / 2 + 350) - img_objectTiles[2]->getFrameWidth()) + (y* OBJ_TILESIZE + OBJ_TILESIZE),
 				210 + (x * img_objectTiles[2]->getFrameWidth()) + img_objectTiles[2]->getFrameWidth());
 		}
+	}
+}
+
+void mapTool::saveFileRange()
+{
+	for (int i = 1; i <= SAVEFILESIZE; i++)
+	{
+		SetRect(&m_saveFile[i-1].rc,
+			WINSIZEX / 2+ 284,
+			(WINSIZEY / 4 + 25) + ((i-1) * 65),
+			(WINSIZEX / 2 +284) + saveBoxX,
+			((WINSIZEY / 4 + 25) + ((i - 1) * 65)) + saveBoxY);
 	}
 }
 
@@ -417,6 +449,7 @@ void mapTool::setOnceTile()
 			break;
 		}
 	}
+
 }
 
 void mapTool::setTerrain()
@@ -448,7 +481,6 @@ void mapTool::setTerrain()
 				m_tiles[i].m_terrainFrameY = m_currentTerrain.y;
 
 				m_tiles[i].m_terrain = m_terrainSelect(m_tiles[i].m_terrainFrameX, m_tiles[i].m_terrainFrameY);
-
 				InvalidateRect(m_hWnd, NULL, false);
 				break;
 			}
@@ -485,7 +517,6 @@ void mapTool::setObject(tagSampleTile _tagSample[], int _objCount, tagTile _tagT
 				_tagTile[i].m_objFrameY[_objCount] = m_currentObj.y;
 
 				_tagTile[i].m_obj = m_objSelect(_objSelectX, _objSelectY);
-
 				break;
 			}
 		}
@@ -496,7 +527,7 @@ void mapTool::setUi()
 {
 	if (PtInRect(&m_nextPageImg.m_rc, m_ptMouse))
 	{
-		if (m_mapToolBookCount == 4)
+		if (m_mapToolBookCount == 5)
 			m_mapToolBookCount = 0;
 		else
 			m_mapToolBookCount++;
@@ -505,13 +536,14 @@ void mapTool::setUi()
 	if (PtInRect(&m_beforePageImg.m_rc, m_ptMouse))
 	{
 		if (m_mapToolBookCount == 0)
-			m_mapToolBookCount = 4;
+			m_mapToolBookCount = 5;
 		else
 			m_mapToolBookCount--;
 	}
 
 	if (PtInRect(&m_saveButton.m_rc, m_ptMouse))
 	{
+		m_saveFileNum++;
 		save();
 	}
 	if (PtInRect(&m_loadButton.m_rc, m_ptMouse))
@@ -674,6 +706,7 @@ OBJECT mapTool::m_objSelect(int frameX, int frameY)
 		return OBJ_DONGO;
 
 }
+
 // Å¸ÀÏº° ÀÌ¹ÌÁö SELECT ÇÏ´Â ÇÔ¼ö ³¡
 
 //======================================================================================

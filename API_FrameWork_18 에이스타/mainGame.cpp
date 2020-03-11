@@ -91,7 +91,6 @@ void mainGame::release()
 {
 	gameNode::release();
 	SCENEMANAGER->release();
-
 }
 
 void mainGame::update()
@@ -129,26 +128,7 @@ void mainGame::update()
 	}
 
 
-	// 카메라만 움직이게 하는 코드
-	//if (KEYMANAGER->isStayKeyDown(VK_LEFT) && CAMERAMANAGER->getCameraXY().x > 0)
-	//{
-	//	CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x - 50, CAMERAMANAGER->getCameraCenter().y));
-	//}
-	//
-	//if (KEYMANAGER->isStayKeyDown(VK_RIGHT))
-	//{
-	//	CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x + 50, CAMERAMANAGER->getCameraCenter().y));
-	//}
-	//
-	//if (KEYMANAGER->isStayKeyDown(VK_UP) && CAMERAMANAGER->getCameraXY().y > 0)
-	//{
-	//	CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x, CAMERAMANAGER->getCameraCenter().y - 50));
-	//}
-	//
-	//if (KEYMANAGER->isStayKeyDown(VK_DOWN))
-	//{
-	//	CAMERAMANAGER->setCameraCenter(PointMake(CAMERAMANAGER->getCameraCenter().x, CAMERAMANAGER->getCameraCenter().y + 50));
-	//}
+	
 
 }
 

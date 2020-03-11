@@ -14,6 +14,8 @@
 #define OBJECTSIZEX 4   // 오브젝트 이미지 사이즈 X
 #define OBJECTSIZEY 4	// 오브젝트 이미지 사이즈 Y
 
+#define SAVEFILESIZE 5	// 세이브 파일
+
 #define TILESIZEX TILEX * TILESIZE
 #define TILESIZEY TILEY * TILESIZE
 
@@ -50,6 +52,11 @@ enum OBJECT
 {
 	//  보물 상자    ,  나  무   , 못지나가는 오브젝트,	던전문	     ,   밟을 수 있는,
 	OBJ_TREASUREBOX, OBJ_TREE, OBJ_DONGO, OBJ_DUNGENONDOOR, OBJ_GO, OBJ_NULL
+};
+
+enum MAPLOAD
+{
+	MAP1 , MAP2 , MAP3 , MAP4 , MAP5 , MAPNULL
 };
 
 // 타일 구조체
@@ -111,7 +118,7 @@ enum GAMEMENU
 
 enum MAPTOOLKIND
 {
-	ONCETILE , TERRAINTILE , FIROBJECTTILE , SECOBJECTTILE , THIRDOBJECTTILE
+	ONCETILE , TERRAINTILE , FIROBJECTTILE , SECOBJECTTILE , THIRDOBJECTTILE , SAVEMENU
 };
 
 struct tagOBJAttribute

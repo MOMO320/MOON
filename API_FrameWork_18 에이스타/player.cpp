@@ -14,14 +14,13 @@ HRESULT player::init()
 {
 	// character 기본 설정
 	m_playerDirect = PLAYER_UP;
-	//m_img			= IMAGEMANAGER->findImage(imageName);
 	m_speed = 100.0f;
 	return S_OK;
 }
 
 void player::release()
 {
-	KEYMANAGER->release();
+
 }
 
 void player::update()
@@ -133,39 +132,41 @@ void player::characterMove()
 	{
 		RECT rc;
 		// 타일의 속성이 움직이지 못하는 곳이면...
-		if (((m_dungeonMap->getAttribute()[tileIndex[i]] & ATTR_UNMOVEABLE) == ATTR_UNMOVEABLE) &&
-			IntersectRect(&rc, &m_dungeonMap->getMap()[tileIndex[i]].m_rc, &rcCollision))
+		if ((m_dunMap1->getAttribute()[tileIndex[i]] == ATTR_UNMOVEABLE) &&
+			IntersectRect(&rc, &m_dunMap1->getMap()[tileIndex[i]].m_rc, &rcCollision))
 		{
 			//움직이려 할때 갈 수 없는 지역이면 탱크의 움직임을 고정하자
 			// ex) 플레이어가 왼쪽으로 갈때 왼쪽지역이 갈 수 없으면
 			switch (m_playerDirect)
 			{
 			case PLAYER_LEFT:
-				_rc.left = m_dungeonMap->getMap()[tileIndex[i]].m_rc.right;
+				_rc.left = m_dunMap1->getMap()[tileIndex[i]].m_rc.right;
 				_rc.right = _rc.left + 60;
 				m_x = _rc.left + (_rc.right - _rc.left) / 2;
 				break;
 
 			case PLAYER_RIGHT:
-				_rc.right = m_dungeonMap->getMap()[tileIndex[i]].m_rc.left;
+				_rc.right = m_dunMap1->getMap()[tileIndex[i]].m_rc.left;
 				_rc.left = _rc.right - 60;
 				m_x = _rc.left + (_rc.right - _rc.left) / 2;
 				break;
 
 			case PLAYER_UP:
-				_rc.top = m_dungeonMap->getMap()[tileIndex[i]].m_rc.bottom;
+				_rc.top = m_dunMap1->getMap()[tileIndex[i]].m_rc.bottom;
 				_rc.bottom  = _rc.top + 60;
 				m_y = _rc.top + (_rc.bottom - rc.top) / 2;
 				break;
 
 			case PLAYER_DOWN:
-				_rc.bottom = m_dungeonMap->getMap()[tileIndex[i]].m_rc.top;
+				_rc.bottom = m_dunMap1->getMap()[tileIndex[i]].m_rc.top;
 				_rc.top = _rc.bottom - 60;
 				m_y = _rc.top + (_rc.bottom - _rc.top) / 2;
 				break;
 			}
 			return;
 		}
+		//여기에 산성을 밟으면 player의 체력이 떨어지는 효과 넣어야 함. 
+		// !! 아직 안 넣음 !!
 	} // end of for
 	// 이제 움직여주자
 	rcCollision = RectMakeCenter(m_x, m_y, 60, 60);

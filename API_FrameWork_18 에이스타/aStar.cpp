@@ -1,45 +1,51 @@
 #include "stdafx.h"
 #include "aStar.h"
-aStar::aStar()
-{
-}
 
+aStar::aStar(): m_enemy(new enemies)
+{
+	m_enemy->init();
+}
 
 aStar::~aStar()
 {
+	delete m_enemy;
 }
 
-HRESULT aStar::init()
+HRESULT aStar::init(tagTile _map[])
 {
+	exTile = NULL;
+	enemyDirection = DIRECTION_DOWN;
+	enemyMoveOk = false;
+	enemyMoveRect = m_enemy->getEnemyInfo()._rc;
+	moveCount = 0;
 
-	_astarState = ASTAR_STATE_END;	//초기상태 =  타일 배치 완료전
-	_selectType = TILE_TYPE_EMPTY;	//배치할 타일 속성 = 빈타일
-	_selectedTypeColor = RGB(255, 255, 255);//배치할 타일 색상 =  하양
+	m_startX = 0;
+	m_startY = 0;
 
-	_startPointSet = false;
-	_endPointSet = false;
+	m_endX = 0;
+	m_endY = 0;
 
-	for (int i = 0; i < TILE_Y; i++)
+	// a star 타일 셋팅
+	for (int i = 1; i <= astarTileY; i++)
 	{
-		for (int j = 0; j < TILE_X; j++)
+		for (int j = 0; j < astarTileX; j++)
 		{
-			_tile[i][j].type = TILE_TYPE_EMPTY;//초기타일 속성 = 빈타일
-			_tile[i][j].color = RGB(255, 255, 255);
-			_tile[i][j].parent = NULL;	//부모타일
-			_tile[i][j].F = BIGNUM;
-			_tile[i][j].H = 0;			//계산전이므로 0
-			_tile[i][j].i = i;
-			_tile[i][j].j = j;
-			_tile[i][j].rc = RectMake(WINSIZEX - (TILE_X + 1)* WIDTH + WIDTH * j,
-				WINSIZEX / 2 - (TILE_Y) / 2 * HEIGHT + HEIGHT * i, WIDTH, HEIGHT);//렉트 할당
+			m_astarTiles[j + (i-1) * astarTileX].rc = _map[(i*40) + (j+2)].m_rc;
+			m_astarTiles[j + (i - 1) * astarTileX].obj = _map[(i * 40) + (j + 2)].m_obj;
 		}
 	}
 
-	for (int i = 0; i < 5; i++)
-	{
-		rc[i] = RectMake(15, 300 + i * 50, 25, 25);
-	}
+	startTile = endTile = -1;
 
+	currentSelect = SELECT_START;
+
+	isFind     = false;
+	noPath     = false;
+	startAstar = false;
+
+	m_enemy->setRect(m_astarTiles[47].rc);
+
+	blockType();
 
 	return S_OK;
 }
@@ -48,470 +54,366 @@ void aStar::release()
 {
 }
 
-void aStar::update()
+void aStar::update(tagTile _map[], RECT _playerRect)
 {
-	//배치가 끝나지 않았다면
-	if (_astarState == ASTAR_STATE_END)
-	{
-		//타일 배치
-		tileComposition();
-	}
-	//시작지점 도착지점이 설치되어 있고 스페이스누르면 초기화
-	if (KEYMANAGER->isOnceKeyDown(VK_SPACE) && _startPointSet&& _endPointSet&& _astarState == ASTAR_STATE_END)
-	{
-		tileInitializing();
-	}
-	if (KEYMANAGER->isOnceKeyDown('5'))
-	{
-		_openList.clear();
-		_closeList.clear();
-		init();
-	}
-	//배치중이거나 발견했거나 길이 없으면 실행하지 마라
-	if (_astarState == ASTAR_STATE_END || _astarState == ASTAR_STATE_FOUND || _astarState == ASTAR_STATE_NOWAY)return;
+	RECT temp1;
 	
-	addOpenList();
-	calculateH();
-	calculateF();
-	addCloseList();
-	checkArrive();
+	if (IntersectRect(&temp1, &_playerRect, &m_enemy->m_enemy1._fightColli) && !startAstar)
+	{
+		currentSelect = SELECT_START;
+		startAstar = true;
+		enemytileSet();
+		
+	}
+	
+	if (!isFind && !noPath &&startAstar)
+	{
+		playerTileSet(_playerRect);
+		Astar();
+	}
+
+	if (isFind && !enemyMoveOk)
+	{
+		rectMoveDirect();  //pathList의 node에 따른 렉트의 이동 방향 설정
+	}
+
+	//if (enemyMoveOk)
+	//{
+	//	switch (enemyDirection)
+	//	{
+	//	case DIRECTION_LEFT:
+	//		break;
+	//	case DIRECTION_RIGHT:
+	//		break;
+	//	case DIRECTION_UP:
+	//		break;
+	//	case DIRECTION_DOWN:
+	//		if (m_enemy->getEnemyInfo()._rc.bottom + 80 < enemyMoveRect.bottom )
+	//		{
+	//			OffsetRect(&enemyMoveRect, 0,  1);
+	//			m_enemy->setRect(enemyMoveRect);
+	//		}
+	//		else
+	//		{
+	//			enemyMoveOk = false;
+	//		}
+	//		break;
+	//	case DIRECTION_LEFTUP:
+	//		break;
+	//	case DIRECTION_RIGHTDOWN:
+	//		break;
+	//	case DIRECTION_LEFTDOWN:
+	//		break;
+	//	case DIRECTION_RIGHTUP:
+	//		break;
+	//	default:
+	//		break;
+	//	}
+	//}
+
+
+
+
+
+
 }
 
 void aStar::render()
 {
-	TextOut(getMemDC(), 15, 75, "1 :지우개", strlen("1 :지우개"));
-	TextOut(getMemDC(), 15, 95, "2 :시작", strlen("2 :시작"));
-	TextOut(getMemDC(), 15, 115, "3 :끝", strlen("3 :끝"));
-	TextOut(getMemDC(), 15, 135, "4 :장애물", strlen("4 :장애물"));
-	TextOut(getMemDC(), 15, 155, "5 :초기화", strlen("5 :초기화"));
 
-	char str[128];
-	if (_astarState == ASTAR_STATE_END)sprintf_s(str, "스페이스 눌러");
-	else if (_astarState == ASTAR_STATE_FOUND)sprintf_s(str, "찾음");
-	else if (_astarState == ASTAR_STATE_NOWAY)sprintf_s(str, "길없음");
-	else if (_astarState == ASTAR_STATE_SEARCHING)sprintf_s(str, "찾는중....");
+	// 선생님 a* 랜더
 
-	TextOut(getMemDC(), 15, 200, str, strlen(str));
+	for (int i = 0; i < astarTileSize; i++)
+	{
+		if (m_astarTiles[i].block)
+		{
+			if (i == startTile)
+			{
+				startTile = -1;
+			}
+			if (i == endTile)
+			{
+				endTile = -1;
+			}
+		}
+		else if (i == startTile)
+		{
+			colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 0, 255, 0);
+		}
+		else if (i == endTile)
+		{
+			colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 255, 0, 0);
+		}
+		else if (m_astarTiles[i].showState == STATE_OPEN)
+		{
+			colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 128, 255, 255);
+		}
+		else if (m_astarTiles[i].showState == STATE_CLOSE)
+		{
+			colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 128, 255, 0);
+		}
+		else if (m_astarTiles[i].showState == STATE_PATH)
+		{
+			colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80,255, 128, 128);
+		}
+	}
+	m_enemy->render();
+
+	for (int i = 0; i < astarTileX * astarTileY; i++)
+	{
+		printText(getMemDC(), to_string(i).c_str(), "나눔고딕", m_astarTiles[i].rc.left, m_astarTiles[i].rc.top + 20, 15, RGB(255, 0, 0), true, RGB(255, 0, 255));
+	}
+	RectangleMakeCenter(getMemDC(), m_astarTiles[startTile].rc.left + 20, m_astarTiles[startTile].rc.top+20, 40,40);
+	colorRectangle(getMemDC(), m_astarTiles[endTile].rc.left + 20, m_astarTiles[endTile].rc.top + 20, 40, 40, 0, 0, 160);
+}
+
+void aStar::Astar()
+{
+	int endX = endTile % astarTileX;
+	int endY = endTile / astarTileX;
+
+	int currentX = currentTile % astarTileX;
+	int currentY = currentTile / astarTileX;
 	
-	newFont = CreateFont(9, 0, 0, 0, FW_NORMAL, false, false, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, DEFAULT_PITCH | FF_SWISS, "굴림");
-	oldFont = (HFONT)SelectObject(getMemDC(), newFont);
+	// left , right , up , down , leftup , rightdown , leftdown , rightup
+	int dx[] = { -1, 1 , 0 , 0 ,  -1 , 1 , -1, 1 };
+	int dy[] = { 0 , 0 , -1, 1 ,  -1 , 1 , 1 , -1 };
+	bool tempBlock[8];
 
-	for (int i = 0; i < TILE_Y; i++)
-	{
-		for (int j = 0; j < TILE_X; j++)
-		{
-			newBrush = CreateSolidBrush(_tile[i][j].color);
-			oldBrush = (HBRUSH)SelectObject(getMemDC(), newBrush);
-			RectangleMake(getMemDC(), _tile[i][j].rc);
-			SelectObject(getMemDC(), oldBrush);
-			DeleteObject(newBrush);
+	// 방향 찾는 방복문
 
-			if (_tile[i][j].parent == NULL)continue;
-		}
-	}
-	SelectObject(getMemDC(), oldFont);
-	DeleteObject(newFont);
+	for (int i = 0; i < 8; i++)
+	{
+		int x = currentX + dx[i];
+		int y = currentY + dy[i];
+		tempBlock[i] = false;
 
-	for (int i = 0; i < 5; i++)
-	{
-		if (i == 0)
+		// 해당 방향으로 움직인 타일이 유효한 타일인지 확인
+		if (0 <= x && x < astarTileX && 0 <= y && y < astarTileY)
 		{
-			BeginSolidColor(getMemDC(), &newBrush, RGB(0, 255, 0));
-			RectangleMake(getMemDC(), rc[i]);
-			sprintf_s(str, "시작점");
-			DeleteObject(newBrush);
-		}
-		if (i == 1)
-		{
-			BeginSolidColor(getMemDC(), &newBrush, RGB(255, 0, 0));
-			RectangleMake(getMemDC(), rc[i]);
-			sprintf_s(str, "도착");
-			DeleteObject(newBrush);
-		}
-		if (i == 2)
-		{
-			BeginSolidColor(getMemDC(), &newBrush, RGB(220, 255, 220));
-			RectangleMake(getMemDC(), rc[i]);
-			sprintf_s(str, "openList");
-			DeleteObject(newBrush);
-		}
-		if (i == 3)
-		{
-			BeginSolidColor(getMemDC(), &newBrush, RGB(255, 0, 255));
-			RectangleMake(getMemDC(), rc[i]);
-			sprintf_s(str, "closeList");
-			DeleteObject(newBrush);
-		}
-		if (i == 4)
-		{
-			BeginSolidColor(getMemDC(), &newBrush, RGB(255, 100, 100));
-			RectangleMake(getMemDC(), rc[i]);
-			sprintf_s(str, "path");
-			DeleteObject(newBrush);
-		}
-		TextOut(getMemDC(), rc[i].right+ 15, rc[i].top + 5, str, strlen(str));
-	}
-}
-
-void aStar::tileComposition()
-{
-	//비어있을때
-	if (KEYMANAGER->isOnceKeyDown('1'))
-	{
-		_selectType = TILE_TYPE_EMPTY;
-		_selectedTypeColor = RGB(255, 255, 255);
-	}
-	//스타트일때
-	else if (KEYMANAGER->isOnceKeyDown('2'))
-	{
-		_selectType = TILE_TYPE_START;
-		_selectedTypeColor = RGB(100, 255, 100);
-	}
-	//엔드일때
-	else if (KEYMANAGER->isOnceKeyDown('3'))
-	{
-		_selectType = TILE_TYPE_END;
-		_selectedTypeColor = RGB(255, 0, 0);
-	}
-	//장애물일때
-	else if (KEYMANAGER->isOnceKeyDown('4'))
-	{
-		_selectType = TILE_TYPE_WALL;
-		_selectedTypeColor = RGB(255, 255, 0);
-	}
-	if (KEYMANAGER->isStayKeyDown(VK_LBUTTON))
-	{
-		for (int i = 0; i < TILE_Y; i++)
-		{
-			for (int j = 0; j < TILE_X; j++)
-			{
-				if (PtInRect(&_tile[i][j].rc, m_ptMouse))
+			bool isOpen;
+			// 대각선 타일의 이동 문제로 (주변에 블락있으면 못감) 임시로 블락 상태 저장
+			if (m_astarTiles[y * astarTileX + x].block) tempBlock[i] = true;
+			else {
+				// check closeList z
+				bool isClose = false;
+				for (int j = 0; j < closeList.size(); j++)
 				{
-					if (_tile[i][j].type == TILE_TYPE_START)_startPointSet = false;
-					if (_tile[i][j].type == TILE_TYPE_END)_endPointSet = false;
-
-
-					_tile[i][j].type = _selectType;
-					_tile[i][j].color = _selectedTypeColor;
-
-					if (_selectType == TILE_TYPE_START)
+					if (closeList[j] == y * astarTileX + x)
 					{
-						if (_startPointSet)
+						isClose = true;
+						break;
+					}
+				}
+				if (isClose) continue;
+
+				if (i < 4)
+				{
+					m_astarTiles[y * astarTileX + x].g = 10;
+				}
+				else
+				{
+					// leftup인 경우 left나 up에 블락있으면 안됨
+					if (i == DIRECTION_LEFTUP &&
+						tempBlock[DIRECTION_LEFT] || tempBlock[DIRECTION_UP]) continue;
+					// rightdown인 경우 right나 down에 블락있으면 안됨
+					if (i == DIRECTION_RIGHTDOWN &&
+						tempBlock[DIRECTION_RIGHT] || tempBlock[DIRECTION_DOWN]) continue;
+					// rightup인 경우 right나 up에 블락있으면 안됨
+					if (i == DIRECTION_RIGHTUP &&
+						tempBlock[DIRECTION_RIGHT] || tempBlock[DIRECTION_UP]) continue;
+					// leftdown인 경우 left나 down에 블락있으면 안됨
+					if (i == DIRECTION_LEFTDOWN &&
+						tempBlock[DIRECTION_LEFT] || tempBlock[DIRECTION_DOWN]) continue;
+					m_astarTiles[y * astarTileX + x].g = 14;
+
+				}
+				//abs절대값
+
+				m_astarTiles[y * astarTileX + x].h = (abs(endX - x) + abs(endY - y)) * 10;
+				m_astarTiles[y * astarTileX + x].f = m_astarTiles[y * astarTileX + x].g + m_astarTiles[y * astarTileX + x].h;
+
+				// 오픈리스트에 있으면 g 비용 비교 후 처리
+				isOpen = false;
+				for (int i = 0; i < openList.size(); i++)
+				{
+					if (openList[i] == y * astarTileX + x)
+					{
+						isOpen = true;
+						if (m_astarTiles[openList[i]].g > m_astarTiles[y * astarTileX + x].g)
 						{
-							_tile[_startY][_startX].color = RGB(255, 255, 255);
-							_tile[_startY][_startX].type = TILE_TYPE_EMPTY;
+							m_astarTiles[openList[i]].h = m_astarTiles[y * astarTileX + x].h;
+							m_astarTiles[openList[i]].g = m_astarTiles[y * astarTileX + x].g;
+							m_astarTiles[openList[i]].f = m_astarTiles[y * astarTileX + x].f;
+							m_astarTiles[openList[i]].node = currentTile;
 						}
-						_startPointSet = true;
-						_startX = j;
-						_startY = i;
-					}
-					if (_selectType == TILE_TYPE_END)
-					{
-						if (_endPointSet)
-						{
-							_tile[_endY][_endX].color = RGB(255, 255, 255);
-							_tile[_endY][_endX].type = TILE_TYPE_EMPTY;
-						}
-						_endPointSet = true;
-						_endX = j;
-						_endY = i;
 					}
 				}
+				// 없으면 그냥 넣고 부모 설정
+				if (!isOpen)
+				{
+					openList.push_back(y * astarTileX + x);
+					m_astarTiles[y * astarTileX + x].node = currentTile;
+				}
+
+				// find
+				if (y * astarTileX + x == endTile)
+					isFind = true;
+
 			}
 		}
 	}
+
+	// 선택 지점 열린목록에서 빼기
+	for (iter = openList.begin(); iter != openList.end(); ++iter)
+	{
+		if ((*iter) == currentTile)
+		{
+			iter = openList.erase(iter);
+			break;
+		}
+	}
+
+	// not Find
+	if (openList.size() == 0)
+	{
+
+		noPath = true;
+
+	}
+
+	// 현재 타일 클로즈리스트에 넣기
+	closeList.push_back(currentTile);
+
+	if (openList.size() != 0)
+	{
+		// find minimum f cost in openList
+		int min = m_astarTiles[*openList.begin()].h;
+		currentTile = *openList.begin();
+		for (iter = openList.begin(); iter != openList.end(); ++iter)
+		{
+			if (min > m_astarTiles[(*iter)].h)
+			{
+				min = m_astarTiles[(*iter)].h;
+				currentTile = *iter;
+			}
+		}
+	}
+	//}
+
+	// 타일 렌더를 위해 상태 저장
+	for (int i = 0; i < openList.size(); i++)
+	{
+		m_astarTiles[openList[i]].showState = STATE_OPEN;
+	}
+	for (int i = 0; i < closeList.size(); i++)
+	{
+		m_astarTiles[closeList[i]].showState = STATE_CLOSE;
+	}
+	// 길 찾기 성공시 각 타일에 길찾기 상태 저장
+	int tempTile = endTile;
+	while (m_astarTiles[tempTile].node != startTile
+		&& isFind)
+	{
+		tempTile = m_astarTiles[tempTile].node;
+		m_astarTiles[tempTile].showState = STATE_PATH;
+		pathList.push_back(m_astarTiles[tempTile].node);
+	}
 }
 
-void aStar::tileInitializing()
+
+void aStar::enemytileSet()
 {
-	for (int i = 0; i < TILE_Y; i++)
+	if (startAstar)
 	{
-		for (int j = 0; j < TILE_X; j++)
-		{
-			if (_tile[i][j].type == TILE_TYPE_EMPTY)
-			{
-				_tile[i][j].walkable = true;
-				_tile[i][j].listOn = false;
-			}
-			else if (_tile[i][j].type == TILE_TYPE_WALL)
-			{
-				_tile[i][j].walkable = false;
-				_tile[i][j].listOn = false;
-			}
-			else if (_tile[i][j].type == TILE_TYPE_START)
-			{
-				_tile[i][j].walkable = true;
-				_tile[i][j].listOn = true;
+		m_startX = (m_enemy->m_enemy1._rc.left / 80) - 2;
+		m_startY = (m_enemy->m_enemy1._rc.top / 80) - 1;
 
-				_closeList.push_back(&_tile[i][j]);
-			}
-			else if (_tile[i][j].type == TILE_TYPE_END)
-			{
-				_endX = j;
-				_endY = i;
-				_tile[i][j].walkable = true;
-				_tile[i][j].listOn = false;
-			}
+		startTile = m_startY * astarTileX + m_startX;
+		currentTile = startTile;
+
+		if (currentTile != exTile)
+		{
+			openList.push_back(currentTile);
+			exTile = currentTile;
 		}
 	}
-	_astarState = ASTAR_STATE_SEARCHING;
-	_lastIndex = 0;
 }
 
-void aStar::addOpenList()
+void aStar::playerTileSet(RECT _playerRect)
 {
-	Ci = _closeList[_lastIndex]->i;//마지막으로 추가된 클로즈리스트 i
-	Cj = _closeList[_lastIndex]->j;
-	Cg = _closeList[_lastIndex]->G;
+	if (startAstar)
+	{
+		m_endX = (_playerRect.left / 80) - 2;
+		m_endY = (_playerRect.top / 80) - 1;
 
-	if (Ci != 0)//0번째 줄이 아니면 상단라인계산
-	{
-		if (_tile[Ci - 1][Cj].walkable)//상단 가운데 타일이 지나갈수 있다면
-		{
-			if (!_tile[Ci - 1][Cj].listOn)//오픈리스트에 포함이 안되어 있는 타일이라면
-			{
-				_tile[Ci - 1][Cj].listOn = true;//오픈리스트에 포함되었다
-				_tile[Ci - 1][Cj].color = RGB(220, 255, 220);
-				_tile[Ci - 1][Cj].G = Cg + 10;	//타일의 G값을 클로즈 리트의 누적 G+10
-				_tile[Ci - 1][Cj].parent = _closeList[_lastIndex];//타일의 부모를 클로즈 리스트의 마지막으로 추가
-				_openList.push_back(&_tile[Ci - 1][Cj]);//오픈리스트에 추가
-			}
-			else//오픈리스트에 포함이 되어 있던 타일이라면
-			{
-				if (Cg + 10 < _tile[Ci - 1][Cj].G)//기존G값보다 새로 계산한 G값이 작다면
-				{
-					_tile[Ci - 1][Cj].G = Cg + 10;//G값 새롭게 계산
-					_tile[Ci - 1][Cj].parent = _closeList[_lastIndex];
-				}
-			}
-		}
-		if (Cj != 0)//좌상단 :0번째 열이 아니라면
-		{
-			//좌상단 타일의 왼쪽이나 아래에 벽이 없다면
-			if (_tile[Ci - 1][Cj - 1].walkable && _tile[Ci][Cj].walkable && _tile[Ci][Cj - 1].walkable)
-			{
-				if (!_tile[Ci - 1][Cj - 1].walkable)
-				{
-					_tile[Ci - 1][Cj - 1].listOn = true;
-					_tile[Ci - 1][Cj - 1].color = RGB(220, 255, 220);
-					_tile[Ci - 1][Cj - 1].G = Cg + 14;//대각선이므로
-					_tile[Ci - 1][Cj - 1].parent = _closeList[_lastIndex];
-					_openList.push_back(&_tile[Ci - 1][Cj - 1]);
-				}
-				else
-				{
-					if (Cg + 14 < _tile[Ci - 1][Cj - 1].G)
-					{
-						_tile[Ci - 1][Cj - 1].G = Cg + 14;
-						_tile[Ci - 1][Cj - 1].parent = _closeList[_lastIndex];
-					}
-				}
-			}
-		}
-		if (Cj != TILE_X - 1)//우상단: 마지막열이 아니라면
-		{
-			//우상단 타일의 왼쪽이나 아래에 벽이 없다면
-			if (_tile[Ci - 1][Cj + 1].walkable && _tile[Ci - 1][Cj].walkable&& _tile[Ci][Cj + 1].walkable)
-			{
-				if (!_tile[Ci - 1][Cj + 1].listOn)
-				{
-					_tile[Ci - 1][Cj + 1].listOn = true;
-					_tile[Ci - 1][Cj + 1].color = RGB(220, 255, 220);
-					_tile[Ci - 1][Cj + 1].G = Cg + 14;
-					_tile[Ci - 1][Cj + 1].parent = _closeList[_lastIndex];
-					_openList.push_back(&_tile[Ci - 1][Cj + 1]);
-				}
-				else
-				{
-					if (Cg + 14 < _tile[Ci - 1][Cj + 1].G)
-					{
-						_tile[Ci - 1][Cj + 1].G = Cg + 14;
-						_tile[Ci - 1][Cj + 1].parent = _closeList[_lastIndex];
-					}
-				}
-			}
-		}
-	}
-	if (Cj != 0)//좌측 : 0번째 열이 아니라면
-	{
-		if (_tile[Ci][Cj - 1].walkable)//좌측타일이 이동가능하다면
-		{
-			if (!_tile[Ci][Cj - 1].listOn)
-			{
-				_tile[Ci][Cj - 1].listOn = true;
-				_tile[Ci][Cj - 1].color = RGB(220, 255, 220);
-				_tile[Ci][Cj - 1].G = Cg + 10;
-				_tile[Ci][Cj - 1].parent = _closeList[_lastIndex];
-				_openList.push_back(&_tile[Ci][Cj - 1]);
-			}
-			else
-			{
-				if (Cg + 10 < _tile[Ci][Cj - 1].G)
-				{
-					_tile[Ci][Cj - 1].G = Cg + 10;
-					_tile[Ci][Cj - 1].parent = _closeList[_lastIndex];
-				}
-			}
-		}
-	}
-	if (Cj != TILE_X - 1)//우측 :  마지막열이 아니라면
-	{
-
-		if (_tile[Ci][Cj + 1].walkable)//우측타일이 이동가능하다면
-		{
-			if (!_tile[Ci][Cj + 1].listOn)
-			{
-				_tile[Ci][Cj + 1].listOn = true;
-				_tile[Ci][Cj + 1].color = RGB(220, 255, 220);
-				_tile[Ci][Cj + 1].G = Cg + 10;
-				_tile[Ci][Cj + 1].parent = _closeList[_lastIndex];
-				_openList.push_back(&_tile[Ci][Cj + 1]);
-			}
-			else
-			{
-				if (Cg + 10 < _tile[Ci][Cj + 1].G)
-				{
-					_tile[Ci][Cj + 1].G = Cg + 10;
-					_tile[Ci][Cj + 1].parent = _closeList[_lastIndex];
-				}
-			}
-		}
-	}
-	if (Ci != TILE_Y - 1)//마지막행이 아니라면 하단 라인 계산
-	{
-		if (_tile[Ci + 1][Cj].walkable)//하단 가운데 타일이 이동가능하다면
-		{
-			if (!_tile[Ci + 1][Cj].listOn)
-			{
-				_tile[Ci + 1][Cj].listOn = true;
-				_tile[Ci + 1][Cj].color = RGB(220, 255, 220);
-				_tile[Ci + 1][Cj].G = Cg + 10;
-				_tile[Ci + 1][Cj].parent = _closeList[_lastIndex];
-				_openList.push_back(&_tile[Ci + 1][Cj]);
-			}
-			else
-			{
-				if (Cg + 10 < _tile[Ci + 1][Cj].G)
-				{
-					_tile[Ci + 1][Cj].G = Cg + 10;
-					_tile[Ci + 1][Cj].parent = _closeList[_lastIndex];
-				}
-			}
-		}
-		if (Cj != 0)//좌하단 :  0번째 열이 아니라면
-		{
-			//좌하단 타일의 오른쪽이나 위에 벽이 없다면
-			if (_tile[Ci + 1][Cj - 1].walkable && _tile[Ci + 1][Cj].walkable && _tile[Ci][Cj - 1].walkable)
-			{
-				if (!_tile[Ci + 1][Cj - 1].listOn)
-				{
-					_tile[Ci + 1][Cj - 1].listOn = true;
-					_tile[Ci + 1][Cj - 1].color = RGB(220, 255, 220);
-					_tile[Ci + 1][Cj - 1].G = Cg + 14;
-					_tile[Ci + 1][Cj - 1].parent = _closeList[_lastIndex];
-					_openList.push_back(&_tile[Ci + 1][Cj - 1]);
-				}
-				else
-				{
-					if (Cg + 14 < _tile[Ci + 1][Cj - 1].G)
-					{
-						_tile[Ci + 1][Cj - 1].G = Cg + 14;
-						_tile[Ci + 1][Cj - 1].parent = _closeList[_lastIndex];
-					}
-				}
-			}
-		}
-		if (Cj != TILE_X - 1)//우하단 :  마지막 열이 아니라면
-		{
-			//우하단 타일의 오른쪽이나 위가 이동가능하다면
-			if (_tile[Ci + 1][Cj + 1].walkable && _tile[Ci + 1][Cj].walkable&& _tile[Ci][Cj + 1].walkable)
-			{
-				if (!_tile[Ci + 1][Cj + 1].listOn)
-				{
-					_tile[Ci + 1][Cj + 1].listOn = true;
-					_tile[Ci + 1][Cj + 1].color = RGB(220, 255, 220);
-					_tile[Ci + 1][Cj + 1].G = Cg + 14;
-					_tile[Ci + 1][Cj + 1].parent = _closeList[_lastIndex];
-					_openList.push_back(&_tile[Ci + 1][Cj + 1]);
-				}
-				else
-				{
-					if (Cg + 14 < _tile[Ci + 1][Cj + 1].G)
-					{
-						_tile[Ci + 1][Cj + 1].G = Cg + 14;
-						_tile[Ci + 1][Cj + 1].parent = _closeList[_lastIndex];
-					}
-				}
-			}
-		}
+		endTile = m_endY * astarTileX + m_endX;
 	}
 }
 
-void aStar::calculateH()
+void aStar::blockType()
 {
-	for (int i = 0; i < _openList.size(); i++)
+	for (int i = 0; i < astarTileX * astarTileY; i++)
 	{
-		int vertical = (_endX - _openList[i]->j) * 10;//가로 H값
-		int horizontal = (_endY - _openList[i]->i) * 10;//세로 H값
+		if (m_astarTiles[i].obj == OBJ_TREE)
+			m_astarTiles[i].block = true;
 
-		if (vertical < 0)vertical *= -1;//방향이 반대이면 음수부여
-		if (horizontal < 0)horizontal *= -1;
-
-		_openList[i]->H = vertical + horizontal;//총 H값 : 가로+세로 H
+		if(m_astarTiles[i].obj == OBJ_DONGO)
+			m_astarTiles[i].block = true;
+			
+		if(m_astarTiles[i].obj == OBJ_TREASUREBOX)
+			m_astarTiles[i].block = true;
 	}
 }
 
-void aStar::calculateF()
+void aStar::rectMoveDirect()
 {
-	for (int i = 0; i < _openList.size(); i++)
-	{
-		_openList[i]->F = _openList[i]->G + _openList[i]->H;//F값계산
-	}
-}
+	int max;
+	RECT temp = m_enemy->getEnemyInfo()._rc;
+	max = pathList.size() - 1;
+	float tempTime ;
+	float elpasedTime = TIMEMANAGER->getElapsedTime();
+	float moveSpeed = elpasedTime * m_enemy->getEnemyInfo().speed;
 
-void aStar::addCloseList()
-{
-	if (_openList.size() == 0)//검색했는데도 openList의 사이즈가 0이면 더이상 찾을것이 없음
+	for (int i = max; i > 0 ;i)
 	{
-		_astarState = ASTAR_STATE_NOWAY;//경로없다
-		return;
-	}
-	int index = 0;			//오픈 리스트중 가장 F가 작은 타일의 인덱스
-	int lowest = BIGNUM;
-
-	for (int i = 0; i < _openList.size(); i++)
-	{
-		if (_openList[i]->F < lowest)
+		if (i == 0) continue;
+			
+		if (pathList.at(i) - pathList.at(i - 1) == -13) // 좌상단
 		{
-			lowest = _openList[i]->F;
-			index = i;
+			if (m_astarTiles[pathList.at(i - 1)].rc.left >= m_enemy->getEnemyInfo()._rc.left)
+			{
+				OffsetRect(&temp, -moveSpeed, -moveSpeed);
+				m_enemy->setRect(temp);
+			}
 		}
+		if (pathList.at(i) - pathList.at(i - 1) == -12) // 중상단
+		{
+			if (m_astarTiles[pathList.at(i - 1)].rc.top >= m_enemy->getEnemyInfo()._rc.top)
+			{
+				OffsetRect(&temp, 0, -moveSpeed);
+				m_enemy->setRect(temp);
+			}
+		}
+
+		if (pathList.at(i) - pathList.at(i - 1) == -12) // 중하단
+		{
+			if (m_astarTiles[pathList.at(i - 1)].rc.bottom > enemyMoveRect.top)
+			{
+				tempTime = TIMEMANAGER->getElapsedTime();
+				if (tempTime > elpasedTime)
+				{
+					OffsetRect(&enemyMoveRect, 0, 1);
+					m_enemy->setRect(enemyMoveRect);
+				}
+				
+					
+			}else enemyMoveOk = true;
+
+		}
+
+		if (enemyMoveOk) i--;
 	}
 
-	_openList[index]->color = RGB(180, 180, 255);
-	_closeList.push_back(_openList[index]);
-	_openList.erase(_openList.begin() + index);//오픈 리스트에 추가된 타일은 오픈리스트에서 제외
-	_lastIndex++;//가장 나중에 추가된 클로즈의 인덱스
 }
 
-void aStar::checkArrive()
-{
-	if (_closeList[_lastIndex]->i == _endY && _closeList[_lastIndex]->j == _endX)//클로즈 리스트의 i,j가 도착지점과 같다면
-	{
-		_astarState = ASTAR_STATE_FOUND;
-		_closeList[_lastIndex]->color = RGB(255, 100, 100);
-		showWay(_closeList[_lastIndex]);
-	}
-}
-
-void aStar::showWay(aStarTile * tile)
-{
-	if (!(tile->i == _endY && tile->j == _endX))//도착지점이 아니라면
-	tile->color = RGB(255, 180, 180);
-	tile = tile->parent;//타일의 부모를 참조해서showWay함수에 다시 넣는다.
-
-	if (tile->parent == NULL)//타일의 부모가 시작지점이면 그만 끝내라
-		return;
-	else
-		showWay(tile);//다시 호출
-}

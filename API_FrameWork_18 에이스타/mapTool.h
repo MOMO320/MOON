@@ -1,6 +1,15 @@
 #pragma once
 #include "gameNode.h"
 
+#define saveBoxX 300
+#define saveBoxY 50
+struct saveFile
+{
+	RECT rc;
+	string name;
+	int count;
+};
+
 
 class mapTool : public gameNode
 {
@@ -30,7 +39,10 @@ public:
 	WALL		m_wallSelect(int imageX);
 
 	int getMaptoolBookCount() { return m_mapToolBookCount; }
-	int		 m_mapToolBookCount;
+	vector<string> getTileMapName() { return vc_tileFileName; }
+	vector<string> getOnceTileMapName() { return vc_onceTileFileName; }
+	int m_mapToolBookCount;
+
 
 private:
 
@@ -53,11 +65,13 @@ private:
 	void FirObjectRange();			// 오브젝트 타일 메뉴에 정렬 해주는 함수
 	void SceObjectRange();			// 오브젝트 타일 메뉴에 정렬 해주는 함수
 	void ThirObjectRange();			// 오브젝트 타일 메뉴에 정렬 해주는 함수
+	
+	void saveFileRange();			// save 파일 정렬
 
 	void updateRect();				// 업데이트 되는 렉트위치
 
 	void setUi();					// ui버튼 클릭 연산처리 
-
+	
 
 private:
 	tagCurrentTile  m_currentTile;		//현재 지목된 타일
@@ -84,7 +98,6 @@ private:
 	image* img_terrainTiles;
 	image* img_objectTiles[3];
 
-
 	// 깔아주는 타일
 	image* m_DungeonTile[3];
 	image* m_WallTile[2];
@@ -101,12 +114,18 @@ private:
 
 	// mapTool제목
 	std::string subject[3] = { " [ 바닥 ] ", " [ 벽 ] ", " [ 오브젝트 ] " };
-	std::string tileTypeName[5] = { " GROUND " , " TERRAIN " , "  OBJECT1 " ,"  OBJECT2 " , "  OBJECT3 " };
-	std::string saveLoad[2] = { "SAVE" , "LOAD" };
+	std::string tileTypeName[6] = { " GROUND " , " TERRAIN " , "  OBJECT1 " ,"  OBJECT2 " , "  OBJECT3 " , "SAVE"};
+	std::string saveLoad[2] = { "SAVE" , "load" };
 
+	vector<string> vc_tileFileName;
+	vector<string> vc_onceTileFileName;
+
+	// 파일 save 
 	HANDLE _map[2];
 	DWORD write[2];
 	DWORD read;
+	saveFile m_saveFile[8];
 
+	int m_saveFileNum;
 };
 

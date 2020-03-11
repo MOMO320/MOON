@@ -66,6 +66,14 @@ inline void BeginSolidColor(HDC hdc, HBRUSH* brush, COLORREF color)
 
 }
 
+inline void colorRectangle(HDC hdc, int x, int y, int width, int height, int _r, int _g, int _b)
+{
+	HBRUSH brush;
+	RECT rc = { x,y, x + width, y + height };
+	brush = CreateSolidBrush(RGB(_r, _g, _b));
+	FillRect(hdc, &rc, brush);
+}
+
 //투명 사각형 그리기
 inline void AlphaRectangle(HDC hdc, int left, int top, int right, int bottom)
 {

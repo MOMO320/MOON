@@ -2,44 +2,48 @@
 #include "DugeonScene.h"
 
 DugeonScene::DugeonScene()
-	:m_dunGeonMap(new dungeonMap) , m_player(new player)
+	:m_Map1(new dungeonMap1) , m_player(new player) ,
+	m_aStar(new aStar)
 {
 	m_player->init();
+	
 }
 
 DugeonScene::~DugeonScene()
 {
-	delete m_dunGeonMap;
+	delete m_Map1;
 	delete m_player;
+	delete m_aStar;
 }
 
 HRESULT DugeonScene::init()
 {
-	m_dunGeonMap->init();
-	
+	m_Map1->init();
+	m_aStar->init(m_Map1->getMap());
 	//===============//
 	//	 playerºÒ·³  //
 	//===============//
-	m_player->setTankMapMemoryAdress(m_dunGeonMap);
-	m_player->setCharacPosition(m_dunGeonMap->getMap()[m_dunGeonMap->getPosFirst()].m_rc);
+	m_player->setTankMapMemoryAdress(m_Map1);
+	m_player->setCharacPosition(m_Map1->getMap()[m_Map1->getPosFirst()].m_rc);
 
 	return S_OK;
 }
 
 void DugeonScene::release()
 {
-	SAFE_DELETE(m_dunGeonMap);
-	SAFE_DELETE(m_player);
+	IMAGEMANAGER->deleteAll();
 }
 
 void DugeonScene::update()
 {
 	m_player->update();
-	m_dunGeonMap->update();
+	m_Map1->update();
+	m_aStar->update(m_Map1->m_map, m_player->getPlayerRect());
 }
 
 void DugeonScene::render()
 {
-	m_dunGeonMap->render();
+	m_Map1->render();
 	m_player->render();
+	m_aStar->render();
 }

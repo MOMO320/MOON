@@ -1,7 +1,8 @@
 #pragma once
 #include "gameNode.h"
-#include "dungeonMap.h"
+#include "dungeonMap1.h"
 #include "player.h"
+#include "aStar.h"
 
 class DugeonScene : public gameNode
 {
@@ -15,7 +16,8 @@ public:
 	void render();
 
 private:
-	dungeonMap* m_dunGeonMap;
+	dungeonMap1 * m_Map1;
 	player*		m_player;
+	aStar*		m_aStar;
 };
 
