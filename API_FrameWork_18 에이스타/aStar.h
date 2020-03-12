@@ -99,12 +99,20 @@ private:
 
 	RECT temp[BACKTILEX*BACKTILEY];
 	RECT enemyMoveRect; 
-	int  moveX = 0;
-	int  moveY = 0;
+	int  moveX = 0;	// 원점 말고 이동한값
+	int  moveY = 0;	// 원점 말고 이동한값
+	int  toGoX = 0;
+	int  toGoY = 0;
 	int moveCount;
 	
+	// 시간 함수를 쓰기 위한 변수
+	float deltaTime;
+	float pastTime = 0.f;
+	float addCharDeley = .001f;
 
 	Direction enemyDirection;
 	bool enemyMoveOk;
+	int	 directionCount = 0;
+
 };
 

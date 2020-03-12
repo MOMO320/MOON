@@ -44,6 +44,6 @@ void DugeonScene::update()
 void DugeonScene::render()
 {
 	m_Map1->render();
-	m_player->render();
 	m_aStar->render();
+	m_player->render();
 }

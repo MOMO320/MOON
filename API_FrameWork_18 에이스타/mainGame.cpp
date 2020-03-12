@@ -153,9 +153,7 @@ void mainGame::render(/*HDC hdc*/)
 
 void mainGame::setMap()
 {
-
   m_mapToolScene->setMap();
-
 }
 
 

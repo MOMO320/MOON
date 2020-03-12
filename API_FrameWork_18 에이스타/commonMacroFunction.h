@@ -72,6 +72,8 @@ inline void colorRectangle(HDC hdc, int x, int y, int width, int height, int _r,
 	RECT rc = { x,y, x + width, y + height };
 	brush = CreateSolidBrush(RGB(_r, _g, _b));
 	FillRect(hdc, &rc, brush);
+
+	DeleteObject(brush);
 }
 
 //투명 사각형 그리기

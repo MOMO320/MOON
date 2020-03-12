@@ -14,7 +14,7 @@ HRESULT player::init()
 {
 	// character 기본 설정
 	m_playerDirect = PLAYER_UP;
-	m_speed = 100.0f;
+	m_speed = 300.0f;
 	return S_OK;
 }
 

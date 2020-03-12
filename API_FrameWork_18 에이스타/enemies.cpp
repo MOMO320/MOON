@@ -12,7 +12,7 @@ enemies::~enemies()
 HRESULT enemies::init()
 {
 	m_enemy1.name = "¹Ú½º";
-	m_enemy1._rc = RectMakeCenter(WINSIZEX - 180, WINSIZEY / 2, 60, 60);
+	m_enemy1._rc = RectMakeCenter(WINSIZEX - 180, WINSIZEY / 2, 80, 80);
 	SetRect(&m_enemy1._fightColli,
 		300, 100, (WINSIZEX / 2) + 450, (WINSIZEY / 2) + 260);
 	m_enemy1.speed = 100;
@@ -31,7 +31,7 @@ void enemies::update()
 void enemies::render()
 {
 	AlphaRectangle(getMemDC(), m_enemy1._fightColli.left, m_enemy1._fightColli.top, m_enemy1._fightColli.right , m_enemy1._fightColli.bottom);
-	colorRectangle(getMemDC(), m_enemy1._rc.left, m_enemy1._rc.top, 60, 60, 255, 69, 000);
+	colorRectangle(getMemDC(), m_enemy1._rc.left, m_enemy1._rc.top, 80, 80, 255, 69, 000);
 }
 
 //void enemies::enemyInit(enemy _enemy , int _left, int _top, int _right, int _bottom, string _name, int _attack, int _hp)

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "aStar.h"
+#include <cmath>
 
 aStar::aStar(): m_enemy(new enemies)
 {
@@ -13,11 +14,16 @@ aStar::~aStar()
 
 HRESULT aStar::init(tagTile _map[])
 {
+
+	RECT temp;
+
 	exTile = NULL;
 	enemyDirection = DIRECTION_DOWN;
 	enemyMoveOk = false;
-	enemyMoveRect = m_enemy->getEnemyInfo()._rc;
+	
 	moveCount = 0;
+
+	deltaTime = 0;
 
 	m_startX = 0;
 	m_startY = 0;
@@ -43,8 +49,13 @@ HRESULT aStar::init(tagTile _map[])
 	noPath     = false;
 	startAstar = false;
 
-	m_enemy->setRect(m_astarTiles[47].rc);
+	temp.left = m_astarTiles[47].rc.left;
+	temp.top= m_astarTiles[47].rc.top;
+	temp.right = m_astarTiles[47].rc.right;
+	temp.bottom = m_astarTiles[47].rc.bottom;
 
+	m_enemy->setRect(temp);
+	enemyMoveRect = m_enemy->getEnemyInfo()._rc;
 	blockType();
 
 	return S_OK;
@@ -58,6 +69,9 @@ void aStar::update(tagTile _map[], RECT _playerRect)
 {
 	RECT temp1;
 	
+	deltaTime = TIMEMANAGER->getElapsedTime();
+	pastTime += deltaTime;
+
 	if (IntersectRect(&temp1, &_playerRect, &m_enemy->m_enemy1._fightColli) && !startAstar)
 	{
 		currentSelect = SELECT_START;
@@ -65,63 +79,143 @@ void aStar::update(tagTile _map[], RECT _playerRect)
 		enemytileSet();
 		
 	}
-	
-	if (!isFind && !noPath &&startAstar)
-	{
 		playerTileSet(_playerRect);
+
+	if (!isFind && !noPath &&startAstar)
+	{	
 		Astar();
 	}
 
-	if (isFind && !enemyMoveOk)
+	if (isFind)
 	{
 		rectMoveDirect();  //pathList의 node에 따른 렉트의 이동 방향 설정
 	}
 
-	//if (enemyMoveOk)
-	//{
-	//	switch (enemyDirection)
-	//	{
-	//	case DIRECTION_LEFT:
-	//		break;
-	//	case DIRECTION_RIGHT:
-	//		break;
-	//	case DIRECTION_UP:
-	//		break;
-	//	case DIRECTION_DOWN:
-	//		if (m_enemy->getEnemyInfo()._rc.bottom + 80 < enemyMoveRect.bottom )
-	//		{
-	//			OffsetRect(&enemyMoveRect, 0,  1);
-	//			m_enemy->setRect(enemyMoveRect);
-	//		}
-	//		else
-	//		{
-	//			enemyMoveOk = false;
-	//		}
-	//		break;
-	//	case DIRECTION_LEFTUP:
-	//		break;
-	//	case DIRECTION_RIGHTDOWN:
-	//		break;
-	//	case DIRECTION_LEFTDOWN:
-	//		break;
-	//	case DIRECTION_RIGHTUP:
-	//		break;
-	//	default:
-	//		break;
-	//	}
-	//}
 
+	if (enemyMoveOk)
+	{
+	switch (enemyDirection)
+	{
+	case DIRECTION_LEFT:
+		if (moveX+4 < toGoX)
+		{
+			toGoX = enemyMoveRect.left;
+			if (pastTime > addCharDeley)
+			{
+				OffsetRect(&enemyMoveRect, -4, 0);
+				m_enemy->setRect(enemyMoveRect);
+			}
+		}
+		else enemyMoveOk = false;
+		break;
+	case DIRECTION_RIGHT:
+		if (moveX+4 > toGoX)
+		{
+			toGoX = enemyMoveRect.right;
+			if (pastTime > addCharDeley)
+			{
+				OffsetRect(&enemyMoveRect, 4, 0);
+				m_enemy->setRect(enemyMoveRect);
+			}
+		}
+		else enemyMoveOk = false;
+		break;
+	case DIRECTION_UP:
+		if (moveY + 4 < toGoY)
+		{
+			toGoY = enemyMoveRect.top;
+			if (pastTime > addCharDeley)
+			{
+				OffsetRect(&enemyMoveRect, 0, -4);
+				m_enemy->setRect(enemyMoveRect);
+			}
+		}
+		else enemyMoveOk = false;
+		break;
+	case DIRECTION_DOWN:
+		if (moveY + 4 > toGoY)
+		{
+			toGoY = enemyMoveRect.bottom;
+		    if (pastTime > addCharDeley)
+		    {
+		    	OffsetRect(&enemyMoveRect, 0, 4);
+		    	m_enemy->setRect(enemyMoveRect);	
+		    }
+		}
+		else enemyMoveOk = false;
+		break;
+	case DIRECTION_LEFTUP:
+		if (moveX + 4 < toGoX && moveY + 4 < toGoY)
+		{
+			toGoX = enemyMoveRect.left;
+			toGoY = enemyMoveRect.bottom;
 
+			if (pastTime > addCharDeley)
+			{
+				OffsetRect(&enemyMoveRect, -4, -4);
+				m_enemy->setRect(enemyMoveRect);
+			}
+		}
+		else enemyMoveOk = false;
+		break;
+	case DIRECTION_RIGHTDOWN:
+		if (moveX + 4 > toGoX && moveY + 4 > toGoY)
+		{
+			toGoX = enemyMoveRect.right;
+			toGoY = enemyMoveRect.bottom;
 
+			if (pastTime > addCharDeley)
+			{
+				OffsetRect(&enemyMoveRect, 4, 4);
+				m_enemy->setRect(enemyMoveRect);
+			}
+		}
+		else enemyMoveOk = false;
+		break;
+	case DIRECTION_LEFTDOWN:
+		if (moveX + 4 < toGoX && moveY + 4 > toGoY)
+		{
+			toGoX = enemyMoveRect.left;
+			toGoY = enemyMoveRect.bottom;
 
+			if (pastTime > addCharDeley)
+			{
+				OffsetRect(&enemyMoveRect, -4, 4);
+				m_enemy->setRect(enemyMoveRect);
+			}
+		}
+		else enemyMoveOk = false;
+		break;
+	case DIRECTION_RIGHTUP:
+		if (moveX + 4 > toGoX && moveY + 4 < toGoY)
+		{
+			toGoX = enemyMoveRect.left;
+			toGoY = enemyMoveRect.top;
+
+			if (pastTime > addCharDeley)
+			{
+				OffsetRect(&enemyMoveRect, 4, -4);
+				m_enemy->setRect(enemyMoveRect);
+			}
+		}else enemyMoveOk = false;
+		break;
+	default:
+		break;
+	}
+	}
 
 
 }
 
 void aStar::render()
 {
-
 	// 선생님 a* 랜더
+
+	for (int i = 0; i < astarTileSize; i++)
+	{
+		if (m_astarTiles[i].block == true)
+			colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 0, 0, 255);
+	}
 
 	for (int i = 0; i < astarTileSize; i++)
 	{
@@ -193,7 +287,8 @@ void aStar::Astar()
 		{
 			bool isOpen;
 			// 대각선 타일의 이동 문제로 (주변에 블락있으면 못감) 임시로 블락 상태 저장
-			if (m_astarTiles[y * astarTileX + x].block) tempBlock[i] = true;
+			if (m_astarTiles[y * astarTileX + x].block)
+				tempBlock[i] = true;
 			else {
 				// check closeList z
 				bool isClose = false;
@@ -259,7 +354,6 @@ void aStar::Astar()
 				// find
 				if (y * astarTileX + x == endTile)
 					isFind = true;
-
 			}
 		}
 	}
@@ -277,9 +371,7 @@ void aStar::Astar()
 	// not Find
 	if (openList.size() == 0)
 	{
-
 		noPath = true;
-
 	}
 
 	// 현재 타일 클로즈리스트에 넣기
@@ -327,7 +419,7 @@ void aStar::enemytileSet()
 	if (startAstar)
 	{
 		m_startX = (m_enemy->m_enemy1._rc.left / 80) - 2;
-		m_startY = (m_enemy->m_enemy1._rc.top / 80) - 1;
+		m_startY = abs(m_enemy->m_enemy1._rc.top / 80) - 1;
 
 		startTile = m_startY * astarTileX + m_startX;
 		currentTile = startTile;
@@ -370,50 +462,144 @@ void aStar::rectMoveDirect()
 {
 	int max;
 	RECT temp = m_enemy->getEnemyInfo()._rc;
+
+	if(pathList.size() >= 1)
 	max = pathList.size() - 1;
-	float tempTime ;
-	float elpasedTime = TIMEMANAGER->getElapsedTime();
-	float moveSpeed = elpasedTime * m_enemy->getEnemyInfo().speed;
-
-	for (int i = max; i > 0 ;i)
+	else max =  0;
+	
+	if (max == 0)
 	{
-		if (i == 0) continue;
-			
-		if (pathList.at(i) - pathList.at(i - 1) == -13) // 좌상단
-		{
-			if (m_astarTiles[pathList.at(i - 1)].rc.left >= m_enemy->getEnemyInfo()._rc.left)
-			{
-				OffsetRect(&temp, -moveSpeed, -moveSpeed);
-				m_enemy->setRect(temp);
-			}
-		}
-		if (pathList.at(i) - pathList.at(i - 1) == -12) // 중상단
-		{
-			if (m_astarTiles[pathList.at(i - 1)].rc.top >= m_enemy->getEnemyInfo()._rc.top)
-			{
-				OffsetRect(&temp, 0, -moveSpeed);
-				m_enemy->setRect(temp);
-			}
-		}
-
-		if (pathList.at(i) - pathList.at(i - 1) == -12) // 중하단
-		{
-			if (m_astarTiles[pathList.at(i - 1)].rc.bottom > enemyMoveRect.top)
-			{
-				tempTime = TIMEMANAGER->getElapsedTime();
-				if (tempTime > elpasedTime)
-				{
-					OffsetRect(&enemyMoveRect, 0, 1);
-					m_enemy->setRect(enemyMoveRect);
-				}
-				
-					
-			}else enemyMoveOk = true;
-
-		}
-
-		if (enemyMoveOk) i--;
+		isFind = false;
+		pathList.clear();
+		closeList.clear();
+		openList.clear();
+		startAstar = false;
+		directionCount = 0;
 	}
+	
+	if (!enemyMoveOk )
+	{
+		for (int i = max; i > 0; i)
+		{
+			i -= directionCount;
 
+		 // 벡터의 크기가 0이 아닐때			
+			if (i == 0)
+			{
+				isFind = false;
+				pathList.clear();
+				closeList.clear();
+				openList.clear();
+				startAstar = false;
+				directionCount = 0;
+			}
+			if (i > 0)
+			{
+			if (pathList.at(i) - pathList.at(i - 1) == 13) // 좌상단( x : -80 , y : -80)
+			{
+				enemyDirection = DIRECTION_LEFTUP;
+
+				moveX = m_astarTiles[pathList.at(i - 1)].rc.left;
+				toGoX = m_astarTiles[pathList.at(i)].rc.left;
+
+				moveY = m_astarTiles[pathList.at(i - 1)].rc.bottom;
+				toGoY = m_astarTiles[pathList.at(i)].rc.bottom;
+				
+				enemyMoveOk = true;
+				directionCount += 1;
+				pastTime = 0;
+				break;
+			}
+
+			if (pathList.at(i) - pathList.at(i - 1) == 12) // 중상단 (y : - 80)
+			{
+				enemyDirection = DIRECTION_UP;
+				moveY = m_astarTiles[pathList.at(i - 1)].rc.top;
+				toGoY = m_astarTiles[pathList.at(i)].rc.top;
+				enemyMoveOk = true;
+				directionCount += 1;
+				pastTime = 0;
+				break;
+			}
+
+			if (pathList.at(i) - pathList.at(i - 1) == 11) // 우상단 (x : 80 , y : -80)
+			{
+				enemyDirection = DIRECTION_RIGHTUP;
+				moveX = m_astarTiles[pathList.at(i - 1)].rc.right;
+				toGoX = m_astarTiles[pathList.at(i)].rc.right;
+
+				moveY = m_astarTiles[pathList.at(i - 1)].rc.top;
+				toGoY = m_astarTiles[pathList.at(i)].rc.top;
+				enemyMoveOk = true;
+				directionCount += 1;
+				pastTime = 0;
+				break;
+			}
+
+			if (pathList.at(i) - pathList.at(i - 1) == 1)  // 왼쪽 ( x: -80)
+			{
+				enemyDirection = DIRECTION_LEFT;
+				moveX = m_astarTiles[pathList.at(i - 1)].rc.left;
+				toGoX = m_astarTiles[pathList.at(i)].rc.left;
+				enemyMoveOk = true;
+				 directionCount += 1;
+				 pastTime = 0;
+				break;
+			}
+
+			if (pathList.at(i) - pathList.at(i - 1) == -1)  // 오른쪽 ( x: 80)
+			{
+				enemyDirection = DIRECTION_RIGHT;
+				moveX = m_astarTiles[pathList.at(i - 1)].rc.right;
+				toGoX = m_astarTiles[pathList.at(i)].rc.right;
+
+				enemyMoveOk = true;
+				 directionCount += 1;
+				 pastTime = 0;
+				break;
+			}
+			
+			if (pathList.at(i) - pathList.at(i - 1) == -11) // 좌하단 (x: -80 , y: 80)
+			{
+				enemyDirection = DIRECTION_LEFTDOWN;
+				moveX = m_astarTiles[pathList.at(i - 1)].rc.left;
+				toGoX = m_astarTiles[pathList.at(i)].rc.left;
+
+				moveY = m_astarTiles[pathList.at(i - 1)].rc.bottom;
+				toGoY = m_astarTiles[pathList.at(i)].rc.bottom;
+
+				enemyMoveOk = true;
+				directionCount += 1;
+				pastTime = 0;
+				break;
+			}
+
+			if (pathList.at(i) - pathList.at(i - 1) == -12) // 중하단
+			{
+				enemyDirection = DIRECTION_DOWN;
+				moveY = m_astarTiles[pathList.at(i - 1)].rc.bottom;
+				toGoY = m_astarTiles[pathList.at(i)].rc.bottom;
+				enemyMoveOk = true;
+				directionCount += 1;
+				pastTime = 0;
+				break;
+			}
+
+			if (pathList.at(i) - pathList.at(i - 1) == -13) // 우하단 ( x: 80 , y : 80)
+			{
+				enemyDirection = DIRECTION_RIGHTDOWN;
+				moveX = m_astarTiles[pathList.at(i - 1)].rc.right;
+				toGoX = m_astarTiles[pathList.at(i)].rc.right;
+
+				moveY = m_astarTiles[pathList.at(i - 1)].rc.bottom;
+				toGoY = m_astarTiles[pathList.at(i)].rc.bottom;
+				enemyMoveOk = true;
+			    directionCount += 1;
+				pastTime = 0;
+				break;
+			}
+		    }
+		}
+	}
 }
 
