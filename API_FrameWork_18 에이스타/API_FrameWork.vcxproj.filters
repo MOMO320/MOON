@@ -88,6 +88,18 @@
     <Filter Include="mainGame\enemies">
       <UniqueIdentifier>{68b45b51-aa8c-4c4e-ab8e-5efde367d840}</UniqueIdentifier>
     </Filter>
+    <Filter Include="mainGame\object">
+      <UniqueIdentifier>{bd195f04-cebf-4fb9-85ae-1527b02c0b83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainGame\object\playerObject">
+      <UniqueIdentifier>{2c8ca4d4-8601-4661-9bb5-c451b5bc1d2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainGame\enemies\Monster">
+      <UniqueIdentifier>{b1774faf-c92c-47f5-a696-584f9b9d2f91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainGame\object\enemyObject">
+      <UniqueIdentifier>{48a3cbe2-bf26-4e04-8d98-eb962fa9dbd6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -216,6 +228,39 @@
     <ClInclude Include="enemies.h">
       <Filter>mainGame\enemies</Filter>
     </ClInclude>
+    <ClInclude Include="dungeonMap.h">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClInclude>
+    <ClInclude Include="arrow.h">
+      <Filter>mainGame\object\playerObject</Filter>
+    </ClInclude>
+    <ClInclude Include="objectManager.h">
+      <Filter>mainGame\object</Filter>
+    </ClInclude>
+    <ClInclude Include="miniSlime.h">
+      <Filter>mainGame\enemies\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="flea.h">
+      <Filter>mainGame\enemies\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="bazookaFlower.h">
+      <Filter>mainGame\enemies\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="mushRoom.h">
+      <Filter>mainGame\enemies\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="DugeonScene2.h">
+      <Filter>mainGame\gameScene\DungeonScene</Filter>
+    </ClInclude>
+    <ClInclude Include="dungeonMap2.h">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>mainGame\gameScene\gameManager</Filter>
+    </ClInclude>
+    <ClInclude Include="bazookaBall.h">
+      <Filter>mainGame\object\enemyObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -322,6 +367,39 @@
     </ClCompile>
     <ClCompile Include="enemies.cpp">
       <Filter>mainGame\enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="dungeonMap.cpp">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClCompile>
+    <ClCompile Include="arrow.cpp">
+      <Filter>mainGame\object\playerObject</Filter>
+    </ClCompile>
+    <ClCompile Include="objectManager.cpp">
+      <Filter>mainGame\object</Filter>
+    </ClCompile>
+    <ClCompile Include="miniSlime.cpp">
+      <Filter>mainGame\enemies\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="flea.cpp">
+      <Filter>mainGame\enemies\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="bazookaFlower.cpp">
+      <Filter>mainGame\enemies\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="mushRoom.cpp">
+      <Filter>mainGame\enemies\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="DugeonScene2.cpp">
+      <Filter>mainGame\gameScene\DungeonScene</Filter>
+    </ClCompile>
+    <ClCompile Include="dungeonMap2.cpp">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClCompile>
+    <ClCompile Include="scene.cpp">
+      <Filter>mainGame\gameScene\gameManager</Filter>
+    </ClCompile>
+    <ClCompile Include="bazookaBall.cpp">
+      <Filter>mainGame\object\enemyObject</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -19,7 +19,5 @@ public:
 	float getElapsedTime()const { return _timer->getElapsedTime(); }
 	float getWorldTime()const { return _timer->getWorldTime(); }
 
-
-
 };
 

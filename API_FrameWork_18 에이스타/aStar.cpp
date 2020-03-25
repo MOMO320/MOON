@@ -2,19 +2,17 @@
 #include "aStar.h"
 #include <cmath>
 
-aStar::aStar(): m_enemy(new enemies)
+aStar::aStar()
 {
-	m_enemy->init();
 }
 
 aStar::~aStar()
 {
-	delete m_enemy;
+
 }
 
-HRESULT aStar::init(tagTile _map[])
+HRESULT aStar::init(tagTile _map[], enemies* _enemy , int _x, int _y)
 {
-
 	RECT temp;
 
 	exTile = NULL;
@@ -49,13 +47,9 @@ HRESULT aStar::init(tagTile _map[])
 	noPath     = false;
 	startAstar = false;
 
-	temp.left = m_astarTiles[47].rc.left;
-	temp.top= m_astarTiles[47].rc.top;
-	temp.right = m_astarTiles[47].rc.right;
-	temp.bottom = m_astarTiles[47].rc.bottom;
+	_enemy->enemySetRect(_x, _y);
+	enemyMoveRect = _enemy->getEnemyInfo()._rc;
 
-	m_enemy->setRect(temp);
-	enemyMoveRect = m_enemy->getEnemyInfo()._rc;
 	blockType();
 
 	return S_OK;
@@ -65,21 +59,23 @@ void aStar::release()
 {
 }
 
-void aStar::update(tagTile _map[], RECT _playerRect)
+void aStar::update(tagTile _map[], RECT _playerRect , enemies* _enemy, int _speed)
 {
 	RECT temp1;
-	
+	RECT enemyFightCollision;
+	enemyFightCollision = _enemy->getEnemyInfo()._fightColli;
+
 	deltaTime = TIMEMANAGER->getElapsedTime();
 	pastTime += deltaTime;
 
-	if (IntersectRect(&temp1, &_playerRect, &m_enemy->m_enemy1._fightColli) && !startAstar)
-	{
+	if (IntersectRect(&temp1, &_playerRect , &enemyFightCollision) && !startAstar)
+	{ 
 		currentSelect = SELECT_START;
 		startAstar = true;
-		enemytileSet();
-		
+		enemytileSet(_enemy);
 	}
-		playerTileSet(_playerRect);
+	
+	playerTileSet(_playerRect);
 
 	if (!isFind && !noPath &&startAstar)
 	{	
@@ -88,177 +84,212 @@ void aStar::update(tagTile _map[], RECT _playerRect)
 
 	if (isFind)
 	{
-		rectMoveDirect();  //pathList의 node에 따른 렉트의 이동 방향 설정
+		rectMoveDirect(_enemy);  //pathList의 node에 따른 렉트의 이동 방향 설정
 	}
-
 
 	if (enemyMoveOk)
 	{
 	switch (enemyDirection)
 	{
 	case DIRECTION_LEFT:
-		if (moveX+4 < toGoX)
+		if (moveX+ 16 < toGoX)
 		{
 			toGoX = enemyMoveRect.left;
 			if (pastTime > addCharDeley)
 			{
-				OffsetRect(&enemyMoveRect, -4, 0);
-				m_enemy->setRect(enemyMoveRect);
+				OffsetRect(&enemyMoveRect, -_speed, 0);
+				_enemy->setRect(enemyMoveRect);
 			}
 		}
-		else enemyMoveOk = false;
+		else
+		{
+			enemyMoveOk = false;
+			firstCount = false;
+		}
 		break;
 	case DIRECTION_RIGHT:
-		if (moveX+4 > toGoX)
+		if (moveX+ 16 > toGoX)
 		{
 			toGoX = enemyMoveRect.right;
 			if (pastTime > addCharDeley)
 			{
-				OffsetRect(&enemyMoveRect, 4, 0);
-				m_enemy->setRect(enemyMoveRect);
+				OffsetRect(&enemyMoveRect, _speed, 0);
+				_enemy->setRect(enemyMoveRect);
 			}
 		}
-		else enemyMoveOk = false;
+		else
+		{
+			enemyMoveOk = false;
+			firstCount = false;
+		}
 		break;
 	case DIRECTION_UP:
-		if (moveY + 4 < toGoY)
+		if (moveY + 16 < toGoY)
 		{
 			toGoY = enemyMoveRect.top;
 			if (pastTime > addCharDeley)
 			{
-				OffsetRect(&enemyMoveRect, 0, -4);
-				m_enemy->setRect(enemyMoveRect);
+				OffsetRect(&enemyMoveRect, 0, -_speed);
+				_enemy->setRect(enemyMoveRect);
+				directionCount = 0;
 			}
 		}
-		else enemyMoveOk = false;
+		else
+		{
+			enemyMoveOk = false;
+			firstCount = false;
+		}
 		break;
 	case DIRECTION_DOWN:
-		if (moveY + 4 > toGoY)
+		if (moveY + 16 > toGoY)
 		{
 			toGoY = enemyMoveRect.bottom;
 		    if (pastTime > addCharDeley)
 		    {
-		    	OffsetRect(&enemyMoveRect, 0, 4);
-		    	m_enemy->setRect(enemyMoveRect);	
+		    	OffsetRect(&enemyMoveRect, 0, _speed);
+				_enemy->setRect(enemyMoveRect);
 		    }
 		}
-		else enemyMoveOk = false;
+		else
+		{
+			enemyMoveOk = false;
+			firstCount = false;
+		}
 		break;
 	case DIRECTION_LEFTUP:
-		if (moveX + 4 < toGoX && moveY + 4 < toGoY)
+		if (moveX + 16 < toGoX && moveY + 16 < toGoY)
 		{
 			toGoX = enemyMoveRect.left;
 			toGoY = enemyMoveRect.bottom;
 
 			if (pastTime > addCharDeley)
 			{
-				OffsetRect(&enemyMoveRect, -4, -4);
-				m_enemy->setRect(enemyMoveRect);
+				OffsetRect(&enemyMoveRect, -_speed, -_speed);
+				_enemy->setRect(enemyMoveRect);
 			}
 		}
-		else enemyMoveOk = false;
+		else
+		{
+			enemyMoveOk = false;
+			firstCount = false;
+		}
 		break;
 	case DIRECTION_RIGHTDOWN:
-		if (moveX + 4 > toGoX && moveY + 4 > toGoY)
+		if (moveX + 16 > toGoX && moveY + 16 > toGoY)
 		{
 			toGoX = enemyMoveRect.right;
 			toGoY = enemyMoveRect.bottom;
 
 			if (pastTime > addCharDeley)
 			{
-				OffsetRect(&enemyMoveRect, 4, 4);
-				m_enemy->setRect(enemyMoveRect);
+				OffsetRect(&enemyMoveRect, _speed, _speed);
+				_enemy->setRect(enemyMoveRect);
 			}
 		}
-		else enemyMoveOk = false;
+		else
+		{
+			enemyMoveOk = false;
+			firstCount = false;
+		}
 		break;
 	case DIRECTION_LEFTDOWN:
-		if (moveX + 4 < toGoX && moveY + 4 > toGoY)
+		if (moveX + 16 < toGoX && moveY + 16 > toGoY)
 		{
 			toGoX = enemyMoveRect.left;
 			toGoY = enemyMoveRect.bottom;
 
 			if (pastTime > addCharDeley)
 			{
-				OffsetRect(&enemyMoveRect, -4, 4);
-				m_enemy->setRect(enemyMoveRect);
+				OffsetRect(&enemyMoveRect, -_speed, _speed);
+				_enemy->setRect(enemyMoveRect);
 			}
 		}
-		else enemyMoveOk = false;
+		else
+		{
+			enemyMoveOk = false;
+			firstCount = false;
+		}
 		break;
 	case DIRECTION_RIGHTUP:
-		if (moveX + 4 > toGoX && moveY + 4 < toGoY)
+		if (moveX + 16 > toGoX && moveY + 16 < toGoY)
 		{
 			toGoX = enemyMoveRect.left;
 			toGoY = enemyMoveRect.top;
 
 			if (pastTime > addCharDeley)
 			{
-				OffsetRect(&enemyMoveRect, 4, -4);
-				m_enemy->setRect(enemyMoveRect);
+				OffsetRect(&enemyMoveRect, _speed, -_speed);
+				_enemy->setRect(enemyMoveRect);
 			}
-		}else enemyMoveOk = false;
-		break;
-	default:
+		}
+		else
+		{
+			enemyMoveOk = false;
+			firstCount = false;
+		}
 		break;
 	}
 	}
-
-
 }
 
-void aStar::render()
+void aStar::render(enemies* _enemy)
 {
 	// 선생님 a* 랜더
 
-	for (int i = 0; i < astarTileSize; i++)
+	if (KEYMANAGER->isToggleKey(VK_F1))
 	{
-		if (m_astarTiles[i].block == true)
-			colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 0, 0, 255);
-	}
+		for (int i = 0; i < astarTileSize; i++)
+		{
+			if (m_astarTiles[i].block == true)
+				colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 0, 0, 255);
+		}
 
-	for (int i = 0; i < astarTileSize; i++)
-	{
-		if (m_astarTiles[i].block)
+		for (int i = 0; i < astarTileSize; i++)
 		{
-			if (i == startTile)
+			if (m_astarTiles[i].block)
 			{
-				startTile = -1;
+				if (i == startTile)
+				{
+					startTile = -1;
+				}
+				if (i == endTile)
+				{
+					endTile = -1;
+				}
 			}
-			if (i == endTile)
+			else if (i == startTile)
 			{
-				endTile = -1;
+				colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 0, 255, 0);
 			}
-		}
-		else if (i == startTile)
-		{
-			colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 0, 255, 0);
-		}
-		else if (i == endTile)
-		{
-			colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 255, 0, 0);
-		}
-		else if (m_astarTiles[i].showState == STATE_OPEN)
-		{
-			colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 128, 255, 255);
-		}
-		else if (m_astarTiles[i].showState == STATE_CLOSE)
-		{
-			colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 128, 255, 0);
-		}
-		else if (m_astarTiles[i].showState == STATE_PATH)
-		{
-			colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80,255, 128, 128);
-		}
-	}
-	m_enemy->render();
+			else if (i == endTile)
+			{
+				colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 255, 0, 0);
+			}
+			else if (m_astarTiles[i].showState == STATE_OPEN)
+			{
+				colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 128, 255, 255);
+			}
+			else if (m_astarTiles[i].showState == STATE_CLOSE)
+			{
+				colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 128, 255, 0);
+			}
+			else if (m_astarTiles[i].showState == STATE_PATH)
+			{
+				colorRectangle(getMemDC(), m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 80, 80, 255, 128, 128);
+			}
 
-	for (int i = 0; i < astarTileX * astarTileY; i++)
-	{
-		printText(getMemDC(), to_string(i).c_str(), "나눔고딕", m_astarTiles[i].rc.left, m_astarTiles[i].rc.top + 20, 15, RGB(255, 0, 0), true, RGB(255, 0, 255));
+		}
 	}
+	_enemy->render();
+
+	//for(int i = 0 ; i < astarTileSize ; i++)
+	//printText(getMemDC(), to_string(i).c_str(), "고딕", m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 20, 255, 100, 50);
+
+
 	RectangleMakeCenter(getMemDC(), m_astarTiles[startTile].rc.left + 20, m_astarTiles[startTile].rc.top+20, 40,40);
 	colorRectangle(getMemDC(), m_astarTiles[endTile].rc.left + 20, m_astarTiles[endTile].rc.top + 20, 40, 40, 0, 0, 160);
+
+	printText(getMemDC(), to_string(directionCount).c_str(), "고딕", WINSIZEX/2, 0, 50, 100, 100, 50);
 }
 
 void aStar::Astar()
@@ -407,6 +438,11 @@ void aStar::Astar()
 	while (m_astarTiles[tempTile].node != startTile
 		&& isFind)
 	{
+		if (!firstPath)
+		{
+			pathList.push_back(m_astarTiles[tempTile].node);
+			firstPath = true;
+		}
 		tempTile = m_astarTiles[tempTile].node;
 		m_astarTiles[tempTile].showState = STATE_PATH;
 		pathList.push_back(m_astarTiles[tempTile].node);
@@ -414,12 +450,12 @@ void aStar::Astar()
 }
 
 
-void aStar::enemytileSet()
+void aStar::enemytileSet(enemies* _enemy)
 {
 	if (startAstar)
 	{
-		m_startX = (m_enemy->m_enemy1._rc.left / 80) - 2;
-		m_startY = abs(m_enemy->m_enemy1._rc.top / 80) - 1;
+		m_startX = (_enemy->getEnemyInfo()._rc.left / 80) - 2;
+		m_startY = abs(_enemy->getEnemyInfo()._rc.top / 80) - 1;
 
 		startTile = m_startY * astarTileX + m_startX;
 		currentTile = startTile;
@@ -458,30 +494,41 @@ void aStar::blockType()
 	}
 }
 
-void aStar::rectMoveDirect()
+void aStar::rectMoveDirect(enemies* _enemy)
 {
 	int max;
-	RECT temp = m_enemy->getEnemyInfo()._rc;
+	RECT temp = _enemy->getEnemyInfo()._rc;
 
-	if(pathList.size() >= 1)
-	max = pathList.size() - 1;
-	else max =  0;
-	
-	if (max == 0)
+	if (pathList.size() > 1)
 	{
-		isFind = false;
-		pathList.clear();
-		closeList.clear();
-		openList.clear();
-		startAstar = false;
-		directionCount = 0;
+		max = pathList.size() - 1;
 	}
-	
-	if (!enemyMoveOk )
+	else
+	{
+		max = 0;
+		if (max == 0)
+		{
+			isFind = false;
+			pathList.clear();
+			closeList.clear();
+			openList.clear();
+			startAstar = false;
+			firstPath = false;
+			directionCount = 0;
+		}
+	}
+
+	if (!enemyMoveOk)
 	{
 		for (int i = max; i > 0; i)
 		{
 			i -= directionCount;
+	
+			if (!firstCount && i == max)
+			{
+				directionCount = 0;
+				firstCount = true;
+			}
 
 		 // 벡터의 크기가 0이 아닐때			
 			if (i == 0)
@@ -491,22 +538,25 @@ void aStar::rectMoveDirect()
 				closeList.clear();
 				openList.clear();
 				startAstar = false;
+				firstPath = false;
 				directionCount = 0;
 			}
 			if (i > 0)
 			{
+			
 			if (pathList.at(i) - pathList.at(i - 1) == 13) // 좌상단( x : -80 , y : -80)
 			{
 				enemyDirection = DIRECTION_LEFTUP;
 
-				moveX = m_astarTiles[pathList.at(i - 1)].rc.left;
-				toGoX = m_astarTiles[pathList.at(i)].rc.left;
+				moveX = m_astarTiles[pathList.at(i - 1)].rc.left + 40;
+				toGoX = m_astarTiles[pathList.at(i)].rc.left + 40;
 
-				moveY = m_astarTiles[pathList.at(i - 1)].rc.bottom;
-				toGoY = m_astarTiles[pathList.at(i)].rc.bottom;
+				moveY = m_astarTiles[pathList.at(i - 1)].rc.bottom - 40;
+				toGoY = m_astarTiles[pathList.at(i)].rc.bottom - 40;
 				
 				enemyMoveOk = true;
 				directionCount += 1;
+			
 				pastTime = 0;
 				break;
 			}
@@ -514,10 +564,11 @@ void aStar::rectMoveDirect()
 			if (pathList.at(i) - pathList.at(i - 1) == 12) // 중상단 (y : - 80)
 			{
 				enemyDirection = DIRECTION_UP;
-				moveY = m_astarTiles[pathList.at(i - 1)].rc.top;
-				toGoY = m_astarTiles[pathList.at(i)].rc.top;
+				moveY = m_astarTiles[pathList.at(i - 1)].rc.top + 40;
+				toGoY = m_astarTiles[pathList.at(i)].rc.top + 40;
 				enemyMoveOk = true;
 				directionCount += 1;
+			
 				pastTime = 0;
 				break;
 			}
@@ -525,13 +576,14 @@ void aStar::rectMoveDirect()
 			if (pathList.at(i) - pathList.at(i - 1) == 11) // 우상단 (x : 80 , y : -80)
 			{
 				enemyDirection = DIRECTION_RIGHTUP;
-				moveX = m_astarTiles[pathList.at(i - 1)].rc.right;
-				toGoX = m_astarTiles[pathList.at(i)].rc.right;
+				moveX = m_astarTiles[pathList.at(i - 1)].rc.right - 40;
+				toGoX = m_astarTiles[pathList.at(i)].rc.right - 40;
 
-				moveY = m_astarTiles[pathList.at(i - 1)].rc.top;
-				toGoY = m_astarTiles[pathList.at(i)].rc.top;
+				moveY = m_astarTiles[pathList.at(i - 1)].rc.top + 40;
+				toGoY = m_astarTiles[pathList.at(i)].rc.top + 40;
 				enemyMoveOk = true;
 				directionCount += 1;
+			
 				pastTime = 0;
 				break;
 			}
@@ -539,22 +591,24 @@ void aStar::rectMoveDirect()
 			if (pathList.at(i) - pathList.at(i - 1) == 1)  // 왼쪽 ( x: -80)
 			{
 				enemyDirection = DIRECTION_LEFT;
-				moveX = m_astarTiles[pathList.at(i - 1)].rc.left;
-				toGoX = m_astarTiles[pathList.at(i)].rc.left;
+				moveX = m_astarTiles[pathList.at(i - 1)].rc.left + 40;
+				toGoX = m_astarTiles[pathList.at(i)].rc.left + 40;
 				enemyMoveOk = true;
-				 directionCount += 1;
-				 pastTime = 0;
+				directionCount += 1;
+			
+				pastTime = 0;
 				break;
 			}
 
 			if (pathList.at(i) - pathList.at(i - 1) == -1)  // 오른쪽 ( x: 80)
 			{
 				enemyDirection = DIRECTION_RIGHT;
-				moveX = m_astarTiles[pathList.at(i - 1)].rc.right;
-				toGoX = m_astarTiles[pathList.at(i)].rc.right;
+				moveX = m_astarTiles[pathList.at(i - 1)].rc.right - 40;
+				toGoX = m_astarTiles[pathList.at(i)].rc.right - 40;
 
 				enemyMoveOk = true;
 				 directionCount += 1;
+			
 				 pastTime = 0;
 				break;
 			}
@@ -562,14 +616,15 @@ void aStar::rectMoveDirect()
 			if (pathList.at(i) - pathList.at(i - 1) == -11) // 좌하단 (x: -80 , y: 80)
 			{
 				enemyDirection = DIRECTION_LEFTDOWN;
-				moveX = m_astarTiles[pathList.at(i - 1)].rc.left;
-				toGoX = m_astarTiles[pathList.at(i)].rc.left;
+				moveX = m_astarTiles[pathList.at(i - 1)].rc.left + 40;
+				toGoX = m_astarTiles[pathList.at(i)].rc.left + 40;
 
-				moveY = m_astarTiles[pathList.at(i - 1)].rc.bottom;
-				toGoY = m_astarTiles[pathList.at(i)].rc.bottom;
+				moveY = m_astarTiles[pathList.at(i - 1)].rc.bottom - 40;
+				toGoY = m_astarTiles[pathList.at(i)].rc.bottom - 40;
 
 				enemyMoveOk = true;
 				directionCount += 1;
+			
 				pastTime = 0;
 				break;
 			}
@@ -577,10 +632,11 @@ void aStar::rectMoveDirect()
 			if (pathList.at(i) - pathList.at(i - 1) == -12) // 중하단
 			{
 				enemyDirection = DIRECTION_DOWN;
-				moveY = m_astarTiles[pathList.at(i - 1)].rc.bottom;
-				toGoY = m_astarTiles[pathList.at(i)].rc.bottom;
+				moveY = m_astarTiles[pathList.at(i - 1)].rc.bottom - 40;
+				toGoY = m_astarTiles[pathList.at(i)].rc.bottom - 40;
 				enemyMoveOk = true;
 				directionCount += 1;
+			
 				pastTime = 0;
 				break;
 			}
@@ -588,13 +644,14 @@ void aStar::rectMoveDirect()
 			if (pathList.at(i) - pathList.at(i - 1) == -13) // 우하단 ( x: 80 , y : 80)
 			{
 				enemyDirection = DIRECTION_RIGHTDOWN;
-				moveX = m_astarTiles[pathList.at(i - 1)].rc.right;
-				toGoX = m_astarTiles[pathList.at(i)].rc.right;
+				moveX = m_astarTiles[pathList.at(i - 1)].rc.right - 40;
+				toGoX = m_astarTiles[pathList.at(i)].rc.right - 40;
 
-				moveY = m_astarTiles[pathList.at(i - 1)].rc.bottom;
-				toGoY = m_astarTiles[pathList.at(i)].rc.bottom;
+				moveY = m_astarTiles[pathList.at(i - 1)].rc.bottom - 40;
+				toGoY = m_astarTiles[pathList.at(i)].rc.bottom - 40;
 				enemyMoveOk = true;
 			    directionCount += 1;
+			
 				pastTime = 0;
 				break;
 			}

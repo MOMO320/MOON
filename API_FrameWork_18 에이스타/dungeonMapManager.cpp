@@ -86,22 +86,22 @@ void dungeonMapManager::addLoad(const char* _fileName, tagTile  _tileName[BACKTI
 void dungeonMapManager::mapOnceRender(tagOnceTile _OncetileName[])
 {
 	// 그라운드
-	for (int i = 0; i < 3; i++)
-	{
+	//for (int i = 0; i < 3; i++)
+	//{
 		_OncetileName[0].m_img = img_groundTiles[_OncetileName[0].m_backGroun];
 		_OncetileName[0].m_img->render(getMemDC(),
 		_OncetileName[0].m_rc.left,
 		_OncetileName[0].m_rc.top);
-	}
+	//}
 
 	// 벽
-	for (int i = 0; i < 3; i++)
-	{
+	//for (int i = 0; i < 3; i++)
+	//{
 		_OncetileName[1].m_img = img_wallTiles[_OncetileName[1].m_wall];
 		_OncetileName[1].m_img->render(getMemDC(),
 		_OncetileName[1].m_rc.left,
 		_OncetileName[1].m_rc.top);
-	}
+	//}
 }
 
 void dungeonMapManager::mapTerrainRender(tagTile _tileName[])

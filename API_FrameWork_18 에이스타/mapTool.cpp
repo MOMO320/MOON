@@ -189,7 +189,7 @@ void mapTool::save()
 {
 	string name , nameOnce, file, count ;
 	name = "map"; nameOnce = "onceMap"; file = ".map";
-	count = std::to_string(m_saveFileNum);
+	count = std::to_string(2);
 	name += count;
 	name += file;
 	nameOnce += count;

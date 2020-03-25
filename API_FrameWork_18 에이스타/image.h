@@ -162,7 +162,7 @@ public:
 	}
 
 	//1프레임 가로세로 크기
-	inline int getFrameWidth() { return _imageInfo->frameWidth; }
+	inline int getFrameWidth()  { return _imageInfo->frameWidth;  }
 	inline int getFrameHeight() { return _imageInfo->frameHeight; }
 
 	//맥스프레임 x,y

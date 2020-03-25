@@ -54,17 +54,17 @@ public:
 	aStar();
 	~aStar();
 
-	HRESULT init(tagTile _map[]);
+	HRESULT init(tagTile _map[], enemies* _enemy , int _x , int _y);
 	void release();
-	void update(tagTile _map[] ,RECT _playerRect);
-	void render();
+	void update(tagTile _map[] ,RECT _playerRect, enemies* _enemy ,int _speed);
+	void render(enemies* _enemy);
 
 	void Astar();
-	void enemytileSet();
+	void enemytileSet(enemies* _enemy);
 	void playerTileSet(RECT _playerRect);
 	void blockType();
 
-	void rectMoveDirect(); //pathList의 node에 따른 렉트의 이동 방향 설정
+	void rectMoveDirect(enemies* _enemy); //pathList의 node에 따른 렉트의 이동 방향 설정
 
 
 
@@ -96,6 +96,8 @@ private:
 	bool isFind;
 	bool noPath;
 	bool startAstar;
+	bool firstPath = false;
+	bool firstCount = false;
 
 	RECT temp[BACKTILEX*BACKTILEY];
 	RECT enemyMoveRect; 

@@ -131,7 +131,7 @@ image * imageManager::addFrameImage(string strKey, const char * fileName, int wi
 image * imageManager::findImage(string strKey)
 {
 	mapImageListIter key = _mImageList.find(strKey);
-
+	
 	if (key != _mImageList.end())
 	{
 		return key->second;

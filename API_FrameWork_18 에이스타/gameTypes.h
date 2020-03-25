@@ -59,6 +59,38 @@ enum MAPLOAD
 	MAP1 , MAP2 , MAP3 , MAP4 , MAP5 , MAPNULL
 };
 
+// player
+enum PLAYERDIRECTION
+{
+	PLAYER_LEFT,
+	PLAYER_UP,
+	PLAYER_RIGHT,
+	PLAYER_DOWN
+};
+
+// enemy
+enum ENEMYDIRECTION
+{
+	ENEMY_LEFT,
+	ENEMY_UP,
+	ENEMY_RIGHT,
+	ENEMY_DOWN,
+};
+
+enum PLAYERSTATUS
+{
+	TOWN_PLAYER,
+	DUNGEON_PLAYER,
+};
+
+enum ANISTATUS
+{
+	IDLE, WALK, ROLL, FIGHT, DIE
+};
+enum WEAPONEANI
+{
+	SWORD, BOW, SPEAR ,NONE
+};
 // 타일 구조체
 struct tagOnceTile
 {
@@ -98,6 +130,13 @@ struct tagSampleTile
 	int m_objFrameY;
 };
 
+struct collisionWwall
+{
+	RECT rc;
+	OBJECT obj; // obj_dongo;
+};
+
+
 struct tagCurrentTile
 {
 	int x;
@@ -124,4 +163,18 @@ enum MAPTOOLKIND
 struct tagOBJAttribute
 {
 	int strengh;		//내구도
+};
+
+struct THROWOBJECTINFO // object충돌처리
+{
+	float		m_speed;	// 날라가는 스피드
+	int			m_x;		//	x 위치
+	int			m_y;		//  y 위치
+
+	RECT		m_mainRc;	// 화살이 나갈 위치
+	RECT		m_rc;		// rect 
+	image*		m_img;		// 이미지
+	image*      m_aniImg;	// 애니메이션 이미지
+	animation * m_ani;		// 애니메이션
+
 };
