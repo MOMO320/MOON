@@ -8,32 +8,6 @@
 #define astarTileY 7
 #define astarTileSize astarTileX * astarTileY
 
-enum Select
-{
-	SELECT_START,
-	SELECT_END,
-	SELECT_BLOCK
-};
-enum Direction
-{
-	DIRECTION_LEFT,
-	DIRECTION_RIGHT,
-	DIRECTION_UP,
-	DIRECTION_DOWN,
-	DIRECTION_LEFTUP,
-	DIRECTION_RIGHTDOWN,
-	DIRECTION_LEFTDOWN,
-	DIRECTION_RIGHTUP
-};
-
-enum State
-{
-	STATE_NONE,
-	STATE_OPEN,
-	STATE_CLOSE,
-	STATE_PATH
-};
-
 
 struct aStarTagTile 
 {
@@ -56,17 +30,20 @@ public:
 
 	HRESULT init(tagTile _map[], enemies* _enemy , int _x , int _y);
 	void release();
-	void update(tagTile _map[] ,RECT _playerRect, enemies* _enemy ,int _speed);
+	void update(tagTile _map[] ,RECT _playerRect, enemies* _enemy ,int _speed, bool _aniIndexUse);
 	void render(enemies* _enemy);
+	void enemyRender(enemies* _enemy);
 
 	void Astar();
 	void enemytileSet(enemies* _enemy);
 	void playerTileSet(RECT _playerRect);
 	void blockType();
 
-	void rectMoveDirect(enemies* _enemy); //pathList의 node에 따른 렉트의 이동 방향 설정
-
-
+	void rectMoveDirect(enemies* _enemy , bool _aniIndexUse); //pathList의 node에 따른 렉트의 이동 방향 설정
+	Direction getDirection() { return enemyDirection; } 
+	vector<int> getPath() { return pathList; }
+	int getFirstPath() { return fistPath; } //현재 이너미가 움직이는 타일 번호를 담은 녀석
+	int getcurrentPath() { return currentPath; }
 
 private:
 	dungeonMapManager* m_dungeonMapManager;
@@ -116,5 +93,8 @@ private:
 	bool enemyMoveOk;
 	int	 directionCount = 0;
 
+	// pathCount 다른 클래스에 넘겨주기
+	int fistPath;
+	int currentPath;
 };
 

@@ -48,8 +48,10 @@ public:
 	inline int getFrameWidth() { return _frameWidth; }
 	inline int getFrameHeight() { return _frameHeight; }
 	inline DWORD getPlayIndex() { return  _nowPlayIndex; }
+	inline _vPlayList getPlaySize() { return _playList; }
 	inline void setPlayIndex(DWORD _index) { _nowPlayIndex = _index; }
-
+	inline void setAniFrameSizeX(int frameWidth) { _frameWidth = frameWidth; }
+	inline void setAniFrameSizeY(int frameHeight) { _frameHeight = frameHeight; }
 
 };
 

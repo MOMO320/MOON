@@ -41,7 +41,7 @@ void enemies::enemyMove(enemy _enemy, dungeonMap* _dunMap, ENEMYDIRECTION _enemy
 
 	case ENEMY_RIGHT:
 		_x += moveSpeed;
-		rcCollision = RectMake(_x, _y, _enemy.m_img->getFrameWidth() - 50, _enemy.m_img->getFrameHeight() - 50);
+		rcCollision = RectMake(_x, _y, _enemy.m_img->getFrameWidth() + 50, _enemy.m_img->getFrameHeight() - 50);
 		break;
 
 	case ENEMY_DOWN:

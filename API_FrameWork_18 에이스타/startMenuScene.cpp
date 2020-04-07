@@ -13,6 +13,7 @@ startMenuScene::~startMenuScene()
 
 HRESULT startMenuScene::init()
 {
+	//SOUNDMANAGER->play("introSound");
 	m_startMenuBubble[0] = IMAGEMANAGER->findImage("시작메뉴버블바탕");
 	m_startMenuBubble[1] = IMAGEMANAGER->findImage("시작메뉴버블위");
 	m_startMenuSideBar = IMAGEMANAGER->findImage("시작메뉴양문");
@@ -26,6 +27,8 @@ HRESULT startMenuScene::init()
 
 	m_bubble[0]->start();
 	m_bubble[1]->start();
+
+	//SOUNDMANAGER->play("introSound");
 
 	return S_OK;
 }
@@ -41,6 +44,11 @@ void startMenuScene::update()
 
 	if (KEYMANAGER->isOnceKeyDown(VK_UP) && m_menuCount > 0)
 		m_menuCount--;
+
+	if (KEYMANAGER->isStayKeyDown('Z'))
+	{
+		//SOUNDMANAGER->stop("introSound");
+	}
 
 }
 

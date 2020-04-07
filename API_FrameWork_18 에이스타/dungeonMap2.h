@@ -15,7 +15,6 @@ public:
 
 	void wallRectSet();
 
-
 	DWORD*				getAttribute() override { return m_attribute; }
 	tagTile*			getMap() override { return m_map; }
 	int					getPosFirst() override { return m_pos[0]; }
@@ -24,12 +23,13 @@ public:
 
 	tagTile				 m_map[BACKTILEX * BACKTILEY];
 
+	collisionWwall	   m_wall[4];
 private:
 	DWORD			   m_attribute[BACKTILEX * BACKTILEY];
 	tagOnceTile	       m_onceMap[2];
 	int				   m_pos[2];
-	collisionWwall	   m_wall[4];
 	collisionWwall		m_wall22;
+
 
 };
 

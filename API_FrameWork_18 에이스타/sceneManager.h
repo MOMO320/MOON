@@ -30,7 +30,7 @@ public:
 
 	HRESULT changeScene(string sceneName);
 
-	bool scenePush(std::string sceneName);
+	bool scenePush(std::string sceneName , bool _isSet);
 	bool scenePop();
 };
 

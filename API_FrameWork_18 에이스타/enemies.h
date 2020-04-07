@@ -13,10 +13,14 @@ struct enemy
 	image*		m_img;
 	animation*	m_ani;
 
+	MOMOANI		m_momoAni;
+
 	string		name;
 	int			attack;
 	int			hp;
 	int			speed;
+
+	int			attackCount; // 모모 몬스터 어택 카운트
 };
 
 struct AngleEnemy
@@ -61,16 +65,19 @@ public:
 
 	virtual void setRect(RECT _rc) = 0;
 	virtual enemy getEnemyInfo() = 0;
+	//virtual enemy getVectEnemy() = 0;
 
 	void enemyMove(enemy _enemy,dungeonMap* _dunMap ,ENEMYDIRECTION _enemyDirect, int _speed);
 	bool getConnect() { return isObjectConnect; }
-	
+
 	//virtual void setRect(RECT _rc) { m_enemy1._rc = _rc; }
 	//virtual enemy getEnemyInfo() { return m_enemy1; }
 
 	//enemy m_enemy1;
 
 protected :
+	vector<enemy> v_enemy;
+
 	float pastTime;
 	float addDeleyTime = 0.5;
 	dungeonMap * m_dunMap;

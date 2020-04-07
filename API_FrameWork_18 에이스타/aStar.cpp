@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "aStar.h"
+#include "gameTypes.h"
 #include <cmath>
 
 aStar::aStar()
@@ -59,7 +60,7 @@ void aStar::release()
 {
 }
 
-void aStar::update(tagTile _map[], RECT _playerRect , enemies* _enemy, int _speed)
+void aStar::update(tagTile _map[], RECT _playerRect , enemies* _enemy, int _speed ,bool _aniIndexUse)
 {
 	RECT temp1;
 	RECT enemyFightCollision;
@@ -84,7 +85,7 @@ void aStar::update(tagTile _map[], RECT _playerRect , enemies* _enemy, int _spee
 
 	if (isFind)
 	{
-		rectMoveDirect(_enemy);  //pathList의 node에 따른 렉트의 이동 방향 설정
+		rectMoveDirect(_enemy , _aniIndexUse);  //pathList의 node에 따른 렉트의 이동 방향 설정
 	}
 
 	if (enemyMoveOk)
@@ -92,7 +93,7 @@ void aStar::update(tagTile _map[], RECT _playerRect , enemies* _enemy, int _spee
 	switch (enemyDirection)
 	{
 	case DIRECTION_LEFT:
-		if (moveX+ 16 < toGoX)
+		if (moveX- 24 < toGoX)
 		{
 			toGoX = enemyMoveRect.left;
 			if (pastTime > addCharDeley)
@@ -108,7 +109,7 @@ void aStar::update(tagTile _map[], RECT _playerRect , enemies* _enemy, int _spee
 		}
 		break;
 	case DIRECTION_RIGHT:
-		if (moveX+ 16 > toGoX)
+		if (moveX+ 24 > toGoX)
 		{
 			toGoX = enemyMoveRect.right;
 			if (pastTime > addCharDeley)
@@ -124,7 +125,7 @@ void aStar::update(tagTile _map[], RECT _playerRect , enemies* _enemy, int _spee
 		}
 		break;
 	case DIRECTION_UP:
-		if (moveY + 16 < toGoY)
+		if (moveY - 24 < toGoY)
 		{
 			toGoY = enemyMoveRect.top;
 			if (pastTime > addCharDeley)
@@ -141,7 +142,7 @@ void aStar::update(tagTile _map[], RECT _playerRect , enemies* _enemy, int _spee
 		}
 		break;
 	case DIRECTION_DOWN:
-		if (moveY + 16 > toGoY)
+		if (moveY + 24 > toGoY)
 		{
 			toGoY = enemyMoveRect.bottom;
 		    if (pastTime > addCharDeley)
@@ -157,7 +158,7 @@ void aStar::update(tagTile _map[], RECT _playerRect , enemies* _enemy, int _spee
 		}
 		break;
 	case DIRECTION_LEFTUP:
-		if (moveX + 16 < toGoX && moveY + 16 < toGoY)
+		if (moveX - 32 < toGoX && moveY - 32 < toGoY)
 		{
 			toGoX = enemyMoveRect.left;
 			toGoY = enemyMoveRect.bottom;
@@ -175,7 +176,7 @@ void aStar::update(tagTile _map[], RECT _playerRect , enemies* _enemy, int _spee
 		}
 		break;
 	case DIRECTION_RIGHTDOWN:
-		if (moveX + 16 > toGoX && moveY + 16 > toGoY)
+		if (moveX + 32 > toGoX && moveY + 32 > toGoY)
 		{
 			toGoX = enemyMoveRect.right;
 			toGoY = enemyMoveRect.bottom;
@@ -193,7 +194,7 @@ void aStar::update(tagTile _map[], RECT _playerRect , enemies* _enemy, int _spee
 		}
 		break;
 	case DIRECTION_LEFTDOWN:
-		if (moveX + 16 < toGoX && moveY + 16 > toGoY)
+		if (moveX - 32 < toGoX && moveY + 32 > toGoY)
 		{
 			toGoX = enemyMoveRect.left;
 			toGoY = enemyMoveRect.bottom;
@@ -211,7 +212,7 @@ void aStar::update(tagTile _map[], RECT _playerRect , enemies* _enemy, int _spee
 		}
 		break;
 	case DIRECTION_RIGHTUP:
-		if (moveX + 16 > toGoX && moveY + 16 < toGoY)
+		if (moveX + 32 > toGoX && moveY - 32 < toGoY)
 		{
 			toGoX = enemyMoveRect.left;
 			toGoY = enemyMoveRect.top;
@@ -285,11 +286,14 @@ void aStar::render(enemies* _enemy)
 	//for(int i = 0 ; i < astarTileSize ; i++)
 	//printText(getMemDC(), to_string(i).c_str(), "고딕", m_astarTiles[i].rc.left, m_astarTiles[i].rc.top, 20, 255, 100, 50);
 
+	//RectangleMakeCenter(getMemDC(), m_astarTiles[startTile].rc.left + 20, m_astarTiles[startTile].rc.top+20, 40,40);
+	//colorRectangle(getMemDC(), m_astarTiles[endTile].rc.left + 20, m_astarTiles[endTile].rc.top + 20, 40, 40, 0, 0, 160);
 
-	RectangleMakeCenter(getMemDC(), m_astarTiles[startTile].rc.left + 20, m_astarTiles[startTile].rc.top+20, 40,40);
-	colorRectangle(getMemDC(), m_astarTiles[endTile].rc.left + 20, m_astarTiles[endTile].rc.top + 20, 40, 40, 0, 0, 160);
+	//printText(getMemDC(), to_string(directionCount).c_str(), "고딕", WINSIZEX/2, 0, 50, 100, 100, 50);
+}
 
-	printText(getMemDC(), to_string(directionCount).c_str(), "고딕", WINSIZEX/2, 0, 50, 100, 100, 50);
+void aStar::enemyRender(enemies * _enemy)
+{
 }
 
 void aStar::Astar()
@@ -402,7 +406,7 @@ void aStar::Astar()
 	// not Find
 	if (openList.size() == 0)
 	{
-		noPath = true;
+		noPath = false;
 	}
 
 	// 현재 타일 클로즈리스트에 넣기
@@ -494,27 +498,50 @@ void aStar::blockType()
 	}
 }
 
-void aStar::rectMoveDirect(enemies* _enemy)
+void aStar::rectMoveDirect(enemies* _enemy, bool _aniIndexUse)
 {
 	int max;
 	RECT temp = _enemy->getEnemyInfo()._rc;
+
+	if(pathList.size() > 0)
+	fistPath = pathList.at(0);
 
 	if (pathList.size() > 1)
 	{
 		max = pathList.size() - 1;
 	}
-	else
+	if(pathList.size() == 0)
 	{
 		max = 0;
-		if (max == 0)
+		
+		if (_aniIndexUse == true)
 		{
-			isFind = false;
-			pathList.clear();
-			closeList.clear();
-			openList.clear();
-			startAstar = false;
-			firstPath = false;
-			directionCount = 0;
+		    if (_enemy->getEnemyInfo().m_ani->getPlayIndex() == _enemy->getEnemyInfo().m_ani->getPlaySize().size() - 1 && _enemy->getEnemyInfo().m_momoAni == MOMO_ATTACKREADY && _enemy->getEnemyInfo().attackCount == 3  )
+		    {
+		        if (max == 0)
+		        {
+		        	isFind = false;
+		        	pathList.clear();
+		        	closeList.clear();
+		        	openList.clear();
+		        	startAstar = false;
+		        	firstPath = false;
+		        	directionCount = 0;
+		        }
+		    }
+		}
+		else if (_aniIndexUse == false)
+		{
+			if (max == 0)
+			{
+				isFind = false;
+				pathList.clear();
+				closeList.clear();
+				openList.clear();
+				startAstar = false;
+				firstPath = false;
+				directionCount = 0;
+			}
 		}
 	}
 
@@ -523,6 +550,7 @@ void aStar::rectMoveDirect(enemies* _enemy)
 		for (int i = max; i > 0; i)
 		{
 			i -= directionCount;
+			currentPath = pathList.at(i);
 	
 			if (!firstCount && i == max)
 			{
@@ -533,13 +561,29 @@ void aStar::rectMoveDirect(enemies* _enemy)
 		 // 벡터의 크기가 0이 아닐때			
 			if (i == 0)
 			{
-				isFind = false;
-				pathList.clear();
-				closeList.clear();
-				openList.clear();
-				startAstar = false;
-				firstPath = false;
-				directionCount = 0;
+				if (_aniIndexUse == true)
+				{
+				    if (_enemy->getEnemyInfo().m_ani->getPlayIndex() == _enemy->getEnemyInfo().m_ani->getPlaySize().size()-1 && _enemy->getEnemyInfo().m_momoAni == MOMO_ATTACKREADY && _enemy->getEnemyInfo().attackCount == 3)
+				    {
+				       isFind = false;
+				       pathList.clear();
+				       closeList.clear();
+				       openList.clear();
+				       startAstar = false;
+				       firstPath = false;
+				       directionCount = 0;
+				    }
+				}
+				if (_aniIndexUse == false)
+				{
+					isFind = false;
+					pathList.clear();
+					closeList.clear();
+					openList.clear();
+					startAstar = false;
+					firstPath = false;
+					directionCount = 0;
+				}
 			}
 			if (i > 0)
 			{

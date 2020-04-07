@@ -64,9 +64,6 @@
     <Filter Include="mainGame\gameScene">
       <UniqueIdentifier>{785402eb-6eeb-4dfe-a319-1dc4ccdefee9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="mainGame\gameScene\DungeonScene">
-      <UniqueIdentifier>{a6015995-055c-4ef3-b4f1-71d54f6c0421}</UniqueIdentifier>
-    </Filter>
     <Filter Include="mainGame\gameScene\mapToolScene">
       <UniqueIdentifier>{ab2c7c40-f8dd-4470-ab41-f46ac333fad4}</UniqueIdentifier>
     </Filter>
@@ -99,6 +96,21 @@
     </Filter>
     <Filter Include="mainGame\object\enemyObject">
       <UniqueIdentifier>{48a3cbe2-bf26-4e04-8d98-eb962fa9dbd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainGame\Ui">
+      <UniqueIdentifier>{16cd9171-d483-44fd-bd12-a9f3d67b07f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainGame\gameScene\Scene">
+      <UniqueIdentifier>{a6015995-055c-4ef3-b4f1-71d54f6c0421}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainGame\Door">
+      <UniqueIdentifier>{53eb48b9-6760-4bd8-a35c-712de8119d19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainGame\inven">
+      <UniqueIdentifier>{a5c37fc4-35ae-40ae-b428-fd2152622f05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mainGame\inven\item">
+      <UniqueIdentifier>{d6e95ec3-7af3-4933-8d63-b9ab5a9166d2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -208,7 +220,7 @@
       <Filter>Manager</Filter>
     </ClInclude>
     <ClInclude Include="DugeonScene.h">
-      <Filter>mainGame\gameScene\DungeonScene</Filter>
+      <Filter>mainGame\gameScene\Scene</Filter>
     </ClInclude>
     <ClInclude Include="mapToolScene.h">
       <Filter>mainGame\gameScene\mapToolScene</Filter>
@@ -250,7 +262,7 @@
       <Filter>mainGame\enemies\Monster</Filter>
     </ClInclude>
     <ClInclude Include="DugeonScene2.h">
-      <Filter>mainGame\gameScene\DungeonScene</Filter>
+      <Filter>mainGame\gameScene\Scene</Filter>
     </ClInclude>
     <ClInclude Include="dungeonMap2.h">
       <Filter>mainGame\gameScene\map</Filter>
@@ -260,6 +272,66 @@
     </ClInclude>
     <ClInclude Include="bazookaBall.h">
       <Filter>mainGame\object\enemyObject</Filter>
+    </ClInclude>
+    <ClInclude Include="fly.h">
+      <Filter>mainGame\enemies\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="dungeonMap3.h">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClInclude>
+    <ClInclude Include="DugeonScene3.h">
+      <Filter>mainGame\gameScene\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Momo.h">
+      <Filter>mainGame\enemies\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="momoBall.h">
+      <Filter>mainGame\object\enemyObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Ui.h">
+      <Filter>mainGame\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="townMap.h">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClInclude>
+    <ClInclude Include="toDungeonMap.h">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClInclude>
+    <ClInclude Include="TownScene.h">
+      <Filter>mainGame\gameScene\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="ToDungeonScene.h">
+      <Filter>mainGame\gameScene\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="DoorManager.h">
+      <Filter>mainGame\Door</Filter>
+    </ClInclude>
+    <ClInclude Include="frontMap.h">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClInclude>
+    <ClInclude Include="firstDungeonScene.h">
+      <Filter>mainGame\gameScene\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="inven.h">
+      <Filter>mainGame\inven</Filter>
+    </ClInclude>
+    <ClInclude Include="itemManager.h">
+      <Filter>mainGame\inven\item</Filter>
+    </ClInclude>
+    <ClInclude Include="item.h">
+      <Filter>mainGame\inven\item</Filter>
+    </ClInclude>
+    <ClInclude Include="invenScene.h">
+      <Filter>mainGame\inven</Filter>
+    </ClInclude>
+    <ClInclude Include="Cusor.h">
+      <Filter>mainGame\inven</Filter>
+    </ClInclude>
+    <ClInclude Include="dungeonMap4.h">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClInclude>
+    <ClInclude Include="DungeonScene5.h">
+      <Filter>mainGame\gameScene\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -348,7 +420,7 @@
       <Filter>Manager</Filter>
     </ClCompile>
     <ClCompile Include="DugeonScene.cpp">
-      <Filter>mainGame\gameScene\DungeonScene</Filter>
+      <Filter>mainGame\gameScene\Scene</Filter>
     </ClCompile>
     <ClCompile Include="mapToolScene.cpp">
       <Filter>mainGame\gameScene\mapToolScene</Filter>
@@ -390,7 +462,7 @@
       <Filter>mainGame\enemies\Monster</Filter>
     </ClCompile>
     <ClCompile Include="DugeonScene2.cpp">
-      <Filter>mainGame\gameScene\DungeonScene</Filter>
+      <Filter>mainGame\gameScene\Scene</Filter>
     </ClCompile>
     <ClCompile Include="dungeonMap2.cpp">
       <Filter>mainGame\gameScene\map</Filter>
@@ -400,6 +472,66 @@
     </ClCompile>
     <ClCompile Include="bazookaBall.cpp">
       <Filter>mainGame\object\enemyObject</Filter>
+    </ClCompile>
+    <ClCompile Include="fly.cpp">
+      <Filter>mainGame\enemies\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="dungeonMap3.cpp">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClCompile>
+    <ClCompile Include="DugeonScene3.cpp">
+      <Filter>mainGame\gameScene\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Momo.cpp">
+      <Filter>mainGame\enemies\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="momoBall.cpp">
+      <Filter>mainGame\object\enemyObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Ui.cpp">
+      <Filter>mainGame\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="TownScene.cpp">
+      <Filter>mainGame\gameScene\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="townMap.cpp">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClCompile>
+    <ClCompile Include="toDungeonMap.cpp">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClCompile>
+    <ClCompile Include="ToDungeonScene.cpp">
+      <Filter>mainGame\gameScene\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="DoorManager.cpp">
+      <Filter>mainGame\Door</Filter>
+    </ClCompile>
+    <ClCompile Include="frontMap.cpp">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClCompile>
+    <ClCompile Include="firstDungeonScene.cpp">
+      <Filter>mainGame\gameScene\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="inven.cpp">
+      <Filter>mainGame\inven</Filter>
+    </ClCompile>
+    <ClCompile Include="itemManager.cpp">
+      <Filter>mainGame\inven\item</Filter>
+    </ClCompile>
+    <ClCompile Include="item.cpp">
+      <Filter>mainGame\inven\item</Filter>
+    </ClCompile>
+    <ClCompile Include="invenScene.cpp">
+      <Filter>mainGame\inven</Filter>
+    </ClCompile>
+    <ClCompile Include="Cusor.cpp">
+      <Filter>mainGame\inven</Filter>
+    </ClCompile>
+    <ClCompile Include="dungeonMap4.cpp">
+      <Filter>mainGame\gameScene\map</Filter>
+    </ClCompile>
+    <ClCompile Include="DungeonScene5.cpp">
+      <Filter>mainGame\gameScene\Scene</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

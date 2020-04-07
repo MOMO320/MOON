@@ -11,15 +11,17 @@ private:
 	image* _progressBarFront;		//체력바 앞이미지
 	image* _progressBarBack;		//체력바 뒤이미지
 
-
 public:
 	progressBar();
 	~progressBar();
 
 	HRESULT init(char* frontImage, char* backImage, float x, float y, int width, int height);
+	HRESULT init(char* frontImage, char* backImage, float x, float y, int width, int height , float x2 , float y2 , int width2 , int height2);
+	
 	void release();
-	void update();
-	void render();
+	void update(int _x , int _y);
+	void render(int _x, int _y);
+	void render(int _x, int _y , int _x2, int _y2);
 	//게이지 셋팅
 	void setGauge(float currentGauge, float maxGauge);
 

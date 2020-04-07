@@ -84,7 +84,7 @@ HRESULT sceneManager::changeScene(string sceneName)
 	return E_FAIL;
 }
 
-bool sceneManager::scenePush(std::string sceneName)
+bool sceneManager::scenePush(std::string sceneName , bool _isSet)
 {
 	POINT pt;
 	pt.x = WINSIZEX/2;
@@ -99,7 +99,11 @@ bool sceneManager::scenePush(std::string sceneName)
 		_currentScene = find->second;
 		sceneStack.push(find->second);
 		_currentScene->isOnChange();
-		CAMERAMANAGER->setCameraCenter(pt);
+		
+		if (_isSet)
+		{
+		   CAMERAMANAGER->setCameraCenter(pt);
+		}
 		return true;
 	}
 }

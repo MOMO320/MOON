@@ -36,6 +36,15 @@ void dungeonMap2::render()
 	m_dungeonManager->mapObjRender(m_dungeonManager->img_mapToolTile[1], m_map, 0);
 	m_dungeonManager->mapObjRender(m_dungeonManager->img_mapToolTile[2], m_map, 1);
 	m_dungeonManager->mapObjRender(m_dungeonManager->img_mapToolTile[3], m_map, 2);
+
+	if (KEYMANAGER->isToggleKey(VK_F1))
+	{	// º®
+		for (int i = 0; i < 4; i++)
+		{
+			Rectangle(getMemDC(), m_wall[i].rc.left, m_wall[i].rc.top, m_wall[i].rc.right, m_wall[i].rc.bottom);
+		}
+	}
+
 }
 
 void dungeonMap2::wallRectSet()

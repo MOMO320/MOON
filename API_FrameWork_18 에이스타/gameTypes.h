@@ -168,8 +168,17 @@ struct tagOBJAttribute
 struct THROWOBJECTINFO // object충돌처리
 {
 	float		m_speed;	// 날라가는 스피드
+	int			m_damage;	// 공격력
 	int			m_x;		//	x 위치
 	int			m_y;		//  y 위치
+
+	POINT		center;
+	float		angle;
+	float		radius;
+	float		gravity;
+
+
+	bool		m_isFire;	//발싸
 
 	RECT		m_mainRc;	// 화살이 나갈 위치
 	RECT		m_rc;		// rect 
@@ -177,4 +186,75 @@ struct THROWOBJECTINFO // object충돌처리
 	image*      m_aniImg;	// 애니메이션 이미지
 	animation * m_ani;		// 애니메이션
 
+};
+enum Select
+{
+	SELECT_START,
+	SELECT_END,
+	SELECT_BLOCK
+};
+enum Direction
+{
+	DIRECTION_LEFT,
+	DIRECTION_RIGHT,
+	DIRECTION_UP,
+	DIRECTION_DOWN,
+	DIRECTION_LEFTUP,
+	DIRECTION_RIGHTDOWN,
+	DIRECTION_LEFTDOWN,
+	DIRECTION_RIGHTUP
+};
+
+enum State
+{
+	STATE_NONE,
+	STATE_OPEN,
+	STATE_CLOSE,
+	STATE_PATH
+};
+
+enum MOMOANI
+{
+	MOMO_MOVE, MOMO_ATTACKREADY, MOMO_ATTACK, MOMO_ATTACKEND
+};
+
+struct objectBullet
+{
+	image* bulletImage;
+	animation * ani;
+	RECT rc;
+	float x, y;
+	float fireX, fireY;
+	float radius;
+	float angle;
+	float speed;
+	bool fire;
+	int count;
+
+	bool connect;
+};
+
+enum DOORSTATUS
+{
+	DOOR_NULL, DOOR_OPEN, DOOR_CLOSE, DOOR_INTO, DOOR_KEEP
+};
+struct DungeonDoor
+{
+	image*		img;
+	image*		Zimg;
+	animation * ani;
+	animation * Zani;
+	RECT 		inToRect;
+	RECT		imgRect;
+	DOORSTATUS status;
+};
+
+struct itemInfo
+{
+	string	name;
+	RECT	rc;
+	image*  img;
+	int		price;
+	int		sellPrice;
+	int		healHp;
 };

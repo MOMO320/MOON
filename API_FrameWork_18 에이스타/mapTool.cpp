@@ -130,7 +130,7 @@ void mapTool::mapToolMenuRender()
 {
 	Rectangle(CAMERAMANAGER->getCameraDC(), m_DrawImage.left, m_DrawImage.top, m_DrawImage.right, m_DrawImage.bottom);
 	/* ¸ÊÅø ¼±ÅÃ ¸Þ´º Ã¢ */
-	IMAGEMANAGER->render("¸ÊÅø¸ÞÀÎ",CAMERAMANAGER->getCameraDC(), WINSIZEX / 2 + 210 , 50);
+	IMAGEMANAGER->render("¸ÊÅø¸ÞÀÎ",CAMERAMANAGER->getCameraDC(),WINSIZEX / 2 + 210 , 50);
 	m_nextPageImg.m_img->render(CAMERAMANAGER->getCameraDC(), m_nextPageImg.m_rc.left, m_nextPageImg.m_rc.top);
 	m_beforePageImg.m_img->render(CAMERAMANAGER->getCameraDC(), m_beforePageImg.m_rc.left, m_beforePageImg.m_rc.top);
 	
@@ -189,7 +189,7 @@ void mapTool::save()
 {
 	string name , nameOnce, file, count ;
 	name = "map"; nameOnce = "onceMap"; file = ".map";
-	count = std::to_string(2);
+	count = std::to_string(7);
 	name += count;
 	name += file;
 	nameOnce += count;

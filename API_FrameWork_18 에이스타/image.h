@@ -111,7 +111,7 @@ public:
 
 	//DC가져와라
 	inline HDC getMemDC() { return _imageInfo->hMemDC; }
-
+	inline HDC getObjectDC() { return _imageInfo->hMemDC; }
 
 	//이미지 좌표x 얻기
 	inline float getX() { return _imageInfo->x; }
@@ -130,6 +130,10 @@ public:
 
 	//가로,세로크기 얻기
 	inline int getWidth() { return _imageInfo->width; }
+	inline void setWidth(int _imgaeWidth) { _imageInfo->width = _imgaeWidth; }
+	inline void setHeight(int _imgaeHeight) { _imageInfo->height = _imgaeHeight; }
+	inline void setFrameWidth(int _imgaeWidth) { _imageInfo->frameWidth = _imgaeWidth; }
+	inline void setFrameHeight(int _imgaeHeight) { _imageInfo->frameHeight = _imgaeHeight; }
 	inline int getHeight() { return _imageInfo->height; }
 
 	//바운딩 박스(충돌용)

@@ -19,5 +19,10 @@ private:
 	dungeonMap2 * m_Map2;
 	bazookaFlower * m_bazookaFlower1;
 	bazookaFlower * m_bazookaFlower2;
+
+
+	// 시간 함수
+	float  pastTime = 0;
+	float  addDeley = 3.0f;
 };
 

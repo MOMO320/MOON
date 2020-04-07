@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "mushRoom.h"
 
-mushRoom::mushRoom() : m_objManager(new objectManager)
+mushRoom::mushRoom() : m_objManager(new objectManager) , m_HpBar(new progressBar)
 {
 }
 
 mushRoom::~mushRoom()
 {
 	delete m_objManager;
+	delete m_HpBar;
 }
 
 HRESULT mushRoom::init(int x, int y)
@@ -34,6 +35,8 @@ HRESULT mushRoom::init(int x, int y)
 
 	enemySetRect(x, y);
 
+	m_HpBar->init("images/progressBar.bmp", "images/progressBarBack1.bmp", m_mushRoom._rc.left, m_mushRoom._rc.top - 5, 30, 10 / 2);
+
 	m_x = m_mushRoom._rc.left;
 	m_y = m_mushRoom._rc.top;
 	
@@ -54,6 +57,7 @@ void mushRoom::release()
 {
 	ANIMATIONMANAGER->deleteALL();
 	IMAGEMANAGER->deleteAll();
+	m_HpBar->release();
 }
 
 void mushRoom::update()
@@ -63,15 +67,16 @@ void mushRoom::update()
 void mushRoom::render()
 {
 	
-
-
 }
-void mushRoom::update(RECT rc, dungeonMap * map)
+
+void mushRoom::update(RECT rc, dungeonMap * map, RECT _playerAttack, int _attack)
 {
 	RECT temp;
 
+	playerConnectRect = RectMake(m_mushRoom.x, m_mushRoom.y, m_mushRoom.m_img->getFrameWidth(), m_mushRoom.m_img->getFrameHeight());
+
 	// 이동에 따른 애니메이션 변경 값
-	if (IntersectRect(&temp, &rc, &m_mushRoom._fightColli) && !m_isOnceAni)
+	if (IntersectRect(&temp, &rc, &playerConnectRect) && !m_isOnceAni)
 	{
 		m_mushRoom.m_ani = ANIMATIONMANAGER->findAnimation("mushRoom_Move1");
 		m_mushRoom.m_ani->start();
@@ -104,35 +109,35 @@ void mushRoom::update(RECT rc, dungeonMap * map)
 	{
 		Move(rc, map);
 	}
-	
+	m_HpBar->update(m_mushRoom.x, m_mushRoom.y);
+	collision(_playerAttack, _attack);
 	
 }
 
 void mushRoom::render(dungeonMap * map)
 {
-	printText(getMemDC(), std::to_string(m_mushRoom.angle).c_str(), "고딕", WINSIZEX / 2, WINSIZEY / 2, 30, RGB(255, 255, 255), false, true);
-	printText(getMemDC(), std::to_string(angleRect.left).c_str(), "고딕", WINSIZEX / 2, 200 + 50, 30, RGB(255, 255, 255), false, true);
-	printText(getMemDC(), std::to_string(angleRect.top).c_str(), "고딕", WINSIZEX / 2, 200 + 100, 30, RGB(255, 255, 255), false, true);
-	m_mushRoom.m_img->aniRender(getMemDC(), m_mushRoom.x, m_mushRoom.y, m_mushRoom.m_ani);
-	
-	AlphaRectangle(getMemDC(), m_mushRoom.x, m_mushRoom.y, m_mushRoom.x + m_mushRoom.m_img->getFrameWidth(), m_mushRoom.y + m_mushRoom.m_img->getFrameHeight());
-	AlphaRectangle(getMemDC(), m_mushRoom._fightColli.left, m_mushRoom._fightColli.top, m_mushRoom._fightColli.right, m_mushRoom._fightColli.bottom);
 
 	for (int i = 0; i < BACKTILEX*BACKTILEY; i++)
 	{
 		if (map->getMap()[i].m_obj != OBJ_DONGO) continue;
 		if (map->getMap()[i].m_obj == OBJ_DONGO || map->getMap()[i].m_obj == OBJ_TREE)
 		{
-		//colorRectangle(getMemDC() ,map->getMap()[i].m_rc.left, map->getMap()[i].m_rc.top,80,80,100,255,100);
-		printText(getMemDC(), std::to_string(i).c_str(), "고딕", map->getMap()[i].m_rc.left, map->getMap()[i].m_rc.top, 30, RGB(255, 255, 255), false, true);
+			//colorRectangle(getMemDC() ,map->getMap()[i].m_rc.left, map->getMap()[i].m_rc.top,80,80,100,255,100);
+			//printText(getMemDC(), std::to_string(i).c_str(), "고딕", map->getMap()[i].m_rc.left, map->getMap()[i].m_rc.top, 30, RGB(255, 255, 255), false, true);
 		}
 	}
 	if (KEYMANAGER->isToggleKey(VK_F1))
 	{
-	for(int i = 0 ; i < 4; i++)
-	Rectangle(getMemDC(), m_wall[i].left, m_wall[i].top, m_wall[i].right, m_wall[i].bottom);
+		for(int i = 0 ; i < 4; i++)
+			Rectangle(getMemDC(), m_wall[i].left, m_wall[i].top, m_wall[i].right, m_wall[i].bottom);
+		
+		Rectangle(getMemDC(), playerConnectRect.left, playerConnectRect.top, playerConnectRect.right, playerConnectRect.bottom);
+		//Rectangle(getMemDC(), m_mushRoom.x, m_mushRoom.y, m_mushRoom.x + m_mushRoom.m_img->getFrameWidth(), m_mushRoom.y + m_mushRoom.m_img->getFrameHeight());
 	}
 
+	m_mushRoom.m_img->aniRender(getMemDC(), m_mushRoom.x, m_mushRoom.y, m_mushRoom.m_ani);
+
+	m_HpBar->render(m_mushRoom.x, m_mushRoom.y);
 }
 
 void mushRoom::render(PLAYERDIRECTION _direct, RECT _rc)
@@ -209,86 +214,6 @@ void mushRoom::Move(RECT rc, dungeonMap * map)
 		m_mushRoom.angle = 2 * PI - m_mushRoom.angle;
 	}
 
-	//m_tileX = rcCollision.left / m_mushRoom.m_img->getFrameHeight();
-	//m_tileY = rcCollision.top / m_mushRoom.m_img->getFrameWidth();
-
-	//angleFistMoveDirect();
-
-	//switch (enemyBeforeDirection)
-	//{
-	//case ENEMY_LEFT:
-	//	tileIndex[0] = m_tileX + m_tileY * BACKTILEX;
-	//	tileIndex[1] = m_tileX + (m_tileY + 1) * BACKTILEX;
-	//	break;
-
-	//case ENEMY_RIGHT:
-	//	tileIndex[0] = (m_tileX + m_tileY * BACKTILEX) + 1;
-	//	tileIndex[1] = (m_tileX + (m_tileY + 1) * BACKTILEX) + 1;
-	//	break;
-
-	//case ENEMY_DOWN:
-	//	tileIndex[0] = m_tileX + m_tileY * BACKTILEX;
-	//	tileIndex[1] = m_tileX + 1 + m_tileY * BACKTILEX;
-	//	break;
-
-	//case ENEMY_UP:
-	//	tileIndex[0] = (m_tileX + m_tileY * BACKTILEX) + BACKTILEX;
-	//	tileIndex[1] = (m_tileX + 1 + m_tileY * BACKTILEX) + BACKTILEX;
-	//	break;
-	//}
-
-	//for (int i = 0; i < 2; i++)
-	//{
-	//	RECT temp;
-	//	
-	//	// 타일의 속성이 움직이지 못하는 곳이면...
-	//	if ((map->getAttribute()[tileIndex[i]] == ATTR_UNMOVEABLE) &&
-	//		IntersectRect(&temp, &map->getMap()[tileIndex[i]].m_rc, &rcCollision))
-	//	{
-	//		if (map->getAttribute()[tileIndex[i]] != ATTR_UNMOVEABLE) continue;
-	//		beforeRect = rcCollision;
-	//		//tileAngleDirect(map->getMap()[tileIndex[i]].m_rc, rcCollision);
-	//		//움직이려 할때 갈 수 없는 지역이면 탱크의 움직임을 고정하자
-	//		// ex) 플레이어가 왼쪽으로 갈때 왼쪽지역이 갈 수 없으면
-	//		switch (enemyBeforeDirection)
-	//		{
-	//		case ENEMY_LEFT:
-	//			m_mushRoom._rc.left = map->getMap()[tileIndex[i]].m_rc.right;
-	//			m_mushRoom._rc.right = m_mushRoom._rc.left + 66;
-	//			m_x = m_mushRoom._rc.left + (m_mushRoom._rc.right - m_mushRoom._rc.left) / 2;
-	//			m_mushRoom.angle = PI - m_mushRoom.angle;
-	//			break;
-
-	//		case ENEMY_RIGHT:
-	//			m_mushRoom._rc.right = map->getMap()[tileIndex[i]].m_rc.left;
-	//			m_mushRoom._rc.left = m_mushRoom._rc.right - 66;
-	//			m_x = m_mushRoom._rc.left + (m_mushRoom._rc.right - m_mushRoom._rc.left) / 2;
-	//			m_mushRoom.angle = PI - m_mushRoom.angle;
-	//			break;
-
-	//		case ENEMY_UP:
-	//			m_mushRoom._rc.top = map->getMap()[tileIndex[i]].m_rc.bottom;
-	//			m_mushRoom._rc.bottom = m_mushRoom._rc.top + 72;
-	//			m_y = m_mushRoom._rc.top + (m_mushRoom._rc.bottom - m_mushRoom._rc.top) / 2;
-	//			m_mushRoom.angle = 2 * PI - m_mushRoom.angle;
-	//			break;
-
-	//		case ENEMY_DOWN:
-	//			m_mushRoom._rc.bottom = map->getMap()[tileIndex[i]].m_rc.top;
-	//			m_mushRoom._rc.top = m_mushRoom._rc.bottom - 72;
-	//			m_y = m_mushRoom._rc.top + (m_mushRoom._rc.bottom - m_mushRoom._rc.top) / 2;
-	//			m_mushRoom.angle = 2 * PI - m_mushRoom.angle;
-	//			break;
-
-	//			return;
-	//		}
-	//		//여기에 산성을 밟으면 player의 체력이 떨어지는 효과 넣어야 함. 
-	//		// !! 아직 안 넣음 !!
-	//	} // end of for
-	//	// 이제 움직여주자
-	//	rcCollision = RectMakeCenter(m_x, m_y, 66, 72);
-	//	m_mushRoom._rc = rcCollision;
-	//}
 }
 void mushRoom::angleFistMoveDirect()
 {
@@ -481,5 +406,15 @@ void mushRoom::angleFistMoveDirect()
 		enemyBeforeDirection = ENEMY_DOWN;
 	}
 
+}
+
+void mushRoom::collision(RECT _playerRc, int _playerAttack)
+{
+	RECT temp;
+	if (IntersectRect(&temp, &_playerRc, &m_mushRoom._rc))
+	{
+		m_mushRoom.hp -= _playerAttack;
+		m_HpBar->setGauge(m_mushRoom.hp, 25);
+	}
 }
 

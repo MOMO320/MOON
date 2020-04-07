@@ -109,13 +109,13 @@ void loading::release()
 
 void loading::update()
 {
-	_loadingBar->update();
+	//./_loadingBar->update();
 }
 
 void loading::render()
 {
 	_background->render(getMemDC());
-	_loadingBar->render();
+	//_loadingBar->render();
 }
 
 void loading::loadImage(string keyName, int width, int height)

@@ -21,7 +21,7 @@ public:
 	void update() override;
 	void render()  override;
 	void render(PLAYERDIRECTION _direct, RECT _rc);
-	void update(RECT _playerRc , dungeonMap * _dungMap , int _moveRangeX , int _moveRangeY, int _width , int _height);
+	void update(RECT _playerRc , dungeonMap * _dungMap );
 
 	void enemySetRect(int _x, int _y) override;
 
@@ -34,7 +34,7 @@ private:
 	void bazooFlowerMovetoPlayer(RECT _playerRc, float _time ,dungeonMap * _dunMap);
 	void bazooFlowerAni(RECT _playerRc);
 	void directObjectSet(ENEMYDIRECTION _enemyDirct);
-	void moveRect();
+
 
 private:
 	bazookaBall * m_bazookaBall;
@@ -50,6 +50,8 @@ private:
 	int   m_y = 0;
 	int   m_attackCount = 0;   // 3번하면 reload해줘야함
 	int   m_conncetCount = 0;
+	
+	float m_addDeleyTime = 0.03;
 
 	float m_pastTime =0.0f;
 	bool  m_isDeath = false;

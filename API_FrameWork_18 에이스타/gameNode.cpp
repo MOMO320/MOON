@@ -84,6 +84,7 @@ void gameNode::release()
 void gameNode::update()
 {
 	CAMERAMANAGER->update();
+	//SOUNDMANAGER->update();
 	//더블버퍼 이후 사용 하지 않는다.(true->false)
 	//InvalidateRect(m_hWnd, NULL, false);
 }

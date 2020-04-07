@@ -23,12 +23,12 @@ public:
 	collisionWwall *	getCollisionWAll() override { return m_wall; }
 
 	tagTile				 m_map[BACKTILEX * BACKTILEY];
+	collisionWwall	     m_wall[4];
 
-private:
+protected:
 	DWORD			   m_attribute[BACKTILEX * BACKTILEY];
 	tagOnceTile	       m_onceMap[2];
 	int				   m_pos[2];
-	collisionWwall	   m_wall[4];
 	collisionWwall	m_wall22;
 };
 

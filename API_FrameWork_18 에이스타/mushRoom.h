@@ -2,6 +2,8 @@
 #include "enemies.h"
 #include "objectManager.h"
 #include "dungeonMap.h"
+#include "progressBar.h"
+
 #define	MUSHROOMSPEED 10
 #define PI 3.141592
 
@@ -16,7 +18,7 @@ public:
 	void update() override;
 	void render()  override;
 	void render(PLAYERDIRECTION _direct, RECT _rc) override;
-	void update(RECT rc , dungeonMap * map);
+	void update(RECT rc , dungeonMap * map ,RECT _playerRc, int _playerAttack);
 	void render(dungeonMap * map);
 
 	void enemySetRect(int _x, int _y) override;
@@ -29,12 +31,17 @@ public:
 	void setRect(RECT _rc) override { m_mushRoom._rc = _rc; }
 	enemy getEnemyInfo() override { return m_null; }
 	AngleEnemy getAngleEnemy() {return m_mushRoom;}
+	AngleEnemy		m_mushRoom;
+
+	void collision(RECT _playerRc, int _playerAttack);
+
 
 private:
 	objectManager *	m_objManager;
+	progressBar *   m_HpBar;
 	enemy			m_null;
 	
-	AngleEnemy		m_mushRoom;
+	RECT			playerConnectRect;
 	RECT			rcCollision;
 	RECT			angleRect;
 	RECT			beforeRect;
@@ -50,6 +57,9 @@ private:
 	bool			m_isFight = false;
 
 	bool			m_onceAngle = false;
-		
+
+	float time = 0.0f;
+	float pastTime = 0.0f;
+	float addDeley = 0.6f;
 };
 

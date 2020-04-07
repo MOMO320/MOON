@@ -53,15 +53,15 @@ void bazookaFlower::update()
 {
 }
 
-void bazookaFlower::update(RECT _playerRc , dungeonMap * _dungMap , int _moveRangeX, int _moveRangeY , int _width, int _height)
+void bazookaFlower::update(RECT _playerRc , dungeonMap * _dungMap )
 {
 	RECT temp;
 	float time = TIMEMANAGER->getElapsedTime();
 	directObjectSet(m_direction);
 	
 	//플레이어와 이동 범위
-	m_bazooFlower._realCollRect = RectMakeCenter(m_bazooFlower._rc.left, m_bazooFlower._rc.top + (m_bazooFlower.m_img->getFrameHeight()/2), 400, 100);
-	m_bazooFlower._fightColli = RectMakeCenter(m_bazooFlower._rc.left+ _moveRangeX, m_bazooFlower._rc.top+ _moveRangeY, _width, _height);
+	m_bazooFlower._realCollRect = RectMakeCenter(m_bazooFlower._rc.left + 100, m_bazooFlower._rc.top + (m_bazooFlower.m_img->getFrameHeight()/2), 300, 300);
+	m_bazooFlower._fightColli = RectMakeCenter(m_bazooFlower._rc.left + 100, m_bazooFlower._rc.top + (m_bazooFlower.m_img->getFrameHeight() / 2),400,400);
 	
 	m_bazookaBall->update(m_bazooFlower._objectRc , m_objManager->getisConnect());
 
@@ -78,7 +78,7 @@ void bazookaFlower::update(RECT _playerRc , dungeonMap * _dungMap , int _moveRan
 		m_bazookaBall->setBazookaBallY(m_y);
 		m_objManager->setisConnect(false);
 	}
-	if (m_aniType == ENEMY_RELOAD && m_attackCount <= 3 && m_isConnect)
+	if (m_aniType == ENEMY_RELOAD && m_attackCount >= 3 && m_isConnect)
 	{
 		m_x = m_bazooFlower._objectRc.left;
 		m_y = m_bazooFlower._objectRc.top;
@@ -87,6 +87,7 @@ void bazookaFlower::update(RECT _playerRc , dungeonMap * _dungMap , int _moveRan
 		m_bazookaBall->setBazookaBallY(m_y);
 	}
 
+	// 공격 애니메이션 인덱스에 따른 변화
 	if (m_aniType == ENEMY_ATTACK && m_objManager->getisConnect() == false &&!m_isConnect)
 	{
 		m_pastTime += time;
@@ -95,6 +96,7 @@ void bazookaFlower::update(RECT _playerRc , dungeonMap * _dungMap , int _moveRan
 			m_isAttackObject = true;
 		}
 	}
+
 
 	if (m_isAttackObject || m_attackCount <= 3  && m_isConnect)
 	{
@@ -120,11 +122,11 @@ void bazookaFlower::render()
 {
 	if (KEYMANAGER->isToggleKey(VK_F1))
 	{
-	  colorRectangle(getMemDC(), m_bazooFlower._fightColli.left, m_bazooFlower._fightColli.top, 700, 100, 255, 0, 0);
+	  colorRectangle(getMemDC(), m_bazooFlower._fightColli.left, m_bazooFlower._fightColli.top, m_bazooFlower._fightColli.right - m_bazooFlower._fightColli.left, m_bazooFlower._fightColli.bottom - m_bazooFlower._fightColli.top, 255, 0, 0);
 	  colorRectangle(getMemDC(), m_bazooFlower._moveColli.left, m_bazooFlower._moveColli.top, 100, 500, 0, 255, 0);
-	  AlphaRectangle(getMemDC(), m_bazooFlower._rc.left, m_bazooFlower._rc.top, m_bazooFlower._rc.right, m_bazooFlower._rc.bottom);
 	  Rectangle(getMemDC(), m_bazookaBall->getBazookaBallInfo().m_mainRc.left, m_bazookaBall->getBazookaBallInfo().m_mainRc.top, m_bazookaBall->getBazookaBallInfo().m_mainRc.right, m_bazookaBall->getBazookaBallInfo().m_mainRc.bottom);
-	  colorRectangle(getMemDC(), m_bazooFlower._realCollRect.left, m_bazooFlower._realCollRect.top, 400, 100, 0, 0, 255);
+	  colorRectangle(getMemDC(), m_bazooFlower._realCollRect.left, m_bazooFlower._realCollRect.top, m_bazooFlower._realCollRect.right - m_bazooFlower._realCollRect.left, m_bazooFlower._realCollRect.bottom - m_bazooFlower._realCollRect.top, 0, 0, 255);
+	  AlphaRectangle(getMemDC(), m_bazooFlower._rc.left, m_bazooFlower._rc.top, m_bazooFlower._rc.right, m_bazooFlower._rc.bottom);
 	}
 }
 
@@ -181,10 +183,10 @@ void bazookaFlower::render(PLAYERDIRECTION _direct, RECT _rc)
 
 void bazookaFlower::enemySetRect(int _x, int _y)
 {
-	m_bazooFlower._rc = RectMakeCenter(_x, _y, m_bazooFlower.m_img->getFrameWidth(), m_bazooFlower.m_img->getFrameHeight());
+	m_bazooFlower._rc = RectMakeCenter(_x, _y, m_bazooFlower.m_img->getFrameWidth() -50, m_bazooFlower.m_img->getFrameHeight() - 50);
 
 	m_bazooFlower._moveColli = RectMakeCenter(_x, _y, 100, 500);
-	m_bazooFlower._fightColli = RectMakeCenter(_x - 300, _y, 700, 100);
+	m_bazooFlower._fightColli = RectMakeCenter(_x - 300, _y,500, 500);
 	//m_bazooFlower._objectRc = RectMakeCenter(_x-30, _y+20, 20, 16);
 
 }
@@ -202,7 +204,7 @@ void bazookaFlower::readyAni(ENEMYDIRECTION _enemyDirct)
 		break;
 
 	case ENEMY_UP:
-		m_bazooFlower.m_ani = ANIMATIONMANAGER->findAnimation("bazooka_Top_Attack");
+		m_bazooFlower.m_ani = ANIMATIONMANAGER->findAnimation("bazooka_Top_Move");
 		break;
 
 	case ENEMY_RIGHT:
@@ -223,23 +225,35 @@ void bazookaFlower::bazooFlowerMovetoPlayer(RECT _playerRc, float _time, dungeon
 
 		if (_playerRc.top - m_bazooFlower._rc.top <= 0)
 		{
-			if (addDeleyTime < pastTime)
+			if (m_addDeleyTime < pastTime)
 			{
 				//OffsetRect(&m_bazooFlower._rc, 0, -2);
 				OffsetRect(&m_bazooFlower._objectRc, 0, -2);
 				m_moveDirect = ENEMY_UP;
 				enemyMove(m_bazooFlower, _dunMap, m_moveDirect, 200);
+
+				m_x = m_bazooFlower._objectRc.left;
+				m_y = m_bazooFlower._objectRc.top;
+
+				m_bazookaBall->setBazookaBallX(m_x);
+				m_bazookaBall->setBazookaBallY(m_y);
 			}
 		}
 
-		if (_playerRc.top - m_bazooFlower._rc.top >= 0)
+		if (_playerRc.top - m_bazooFlower._rc.top >= 0) // 바텀
 		{
-			if (addDeleyTime < pastTime)
+			if (m_addDeleyTime < pastTime)
 			{
 				//OffsetRect(&m_bazooFlower._rc, 0, 2);
 				OffsetRect(&m_bazooFlower._objectRc, 0, 2);
 				m_moveDirect = ENEMY_DOWN;
 				enemyMove(m_bazooFlower, _dunMap, m_moveDirect, 200);
+
+				m_x = m_bazooFlower._objectRc.left;
+				m_y = m_bazooFlower._objectRc.top;
+
+				m_bazookaBall->setBazookaBallX(m_x);
+				m_bazookaBall->setBazookaBallY(m_y);
 			}
 		}
 	}
@@ -247,10 +261,33 @@ void bazookaFlower::bazooFlowerMovetoPlayer(RECT _playerRc, float _time, dungeon
 	{
 		if (!IntersectRect(&temp, &m_bazooFlower._realCollRect, &_playerRc))
 		{
-			if (addDeleyTime < pastTime)
+			if (m_addDeleyTime < pastTime)
 			{
 				m_moveDirect = ENEMY_LEFT;
 				enemyMove(m_bazooFlower, _dunMap, m_moveDirect, 200);
+
+				m_x = m_bazooFlower._objectRc.left;
+				m_y = m_bazooFlower._objectRc.top;
+
+				m_bazookaBall->setBazookaBallX(m_x);
+				m_bazookaBall->setBazookaBallY(m_y);
+			}
+		}
+	}
+	if (getConnect() == true && m_direction == ENEMY_RIGHT)
+	{
+		if (!IntersectRect(&temp, &m_bazooFlower._realCollRect, &_playerRc))
+		{
+			if (m_addDeleyTime < pastTime)
+			{
+				m_moveDirect = ENEMY_RIGHT;
+				enemyMove(m_bazooFlower, _dunMap, m_moveDirect, 200);
+
+				m_x = m_bazooFlower._objectRc.left;
+				m_y = m_bazooFlower._objectRc.top;
+
+				m_bazookaBall->setBazookaBallX(m_x);
+				m_bazookaBall->setBazookaBallY(m_y);
 			}
 		}
 	}
@@ -276,7 +313,7 @@ void bazookaFlower::bazooFlowerAni(RECT _playerRc)
 			break;
 
 		case ENEMY_UP:
-			m_bazooFlower.m_ani = ANIMATIONMANAGER->findAnimation("bazooka_Top_Attack");
+			m_bazooFlower.m_ani = ANIMATIONMANAGER->findAnimation("bazooka_Top_Move");
 			break;
 
 		case ENEMY_RIGHT:
@@ -300,6 +337,14 @@ void bazookaFlower::bazooFlowerAni(RECT _playerRc)
 			{
 				m_aniType = ENEMY_ATTACK;
 				m_bazooFlower.m_ani = ANIMATIONMANAGER->findAnimation("bazooka_left_Attack");
+			}
+			break;
+
+		case ENEMY_UP:
+			if (m_bazooFlower.m_ani->getPlayIndex() == 10)
+			{ //여기가 문제
+				m_aniType = ENEMY_ATTACK;
+				m_bazooFlower.m_ani = ANIMATIONMANAGER->findAnimation("bazooka_Top_Attack");
 			}
 			break;
 
@@ -352,14 +397,14 @@ void bazookaFlower::bazooFlowerAni(RECT _playerRc)
 			}
 			break;
 		case ENEMY_DOWN:
-			if (m_bazooFlower.m_ani->getPlayIndex() == 3 && m_attackCount < 4)
+			if (m_bazooFlower.m_ani->getPlayIndex() == 7 && m_attackCount < 4)
 			{
 				m_attackCount += 1;
 				m_bazooFlower.m_ani->setPlayIndex(0);
 			}
 			else if (m_attackCount == 3)
 			{
-				m_bazooFlower.m_ani = ANIMATIONMANAGER->findAnimation("bazooka_right_Reload");
+				m_bazooFlower.m_ani = ANIMATIONMANAGER->findAnimation("bazooka_Bottom_Reload");
 				m_attackCount = 0;
 				m_aniType = ENEMY_RELOAD;
 				m_bazooFlower.m_ani->start();
@@ -367,6 +412,18 @@ void bazookaFlower::bazooFlowerAni(RECT _playerRc)
 			break;
 
 		case ENEMY_UP:
+			if (m_bazooFlower.m_ani->getPlayIndex() == 7 && m_attackCount < 4)
+			{
+				m_attackCount += 1;
+				m_bazooFlower.m_ani->setPlayIndex(0);
+			}
+			else if (m_attackCount == 3)
+			{
+				m_bazooFlower.m_ani = ANIMATIONMANAGER->findAnimation("bazooka_Top_Move");
+				m_attackCount = 0;
+				m_aniType = ENEMY_RELOAD;
+				m_bazooFlower.m_ani->start();
+			}
 			break;
 
 		case ENEMY_RIGHT:
@@ -401,12 +458,19 @@ void bazookaFlower::bazooFlowerAni(RECT _playerRc)
 		case ENEMY_DOWN:
 			if (m_bazooFlower.m_ani->getPlayIndex() == 3)
 			{
-				m_aniType = ENEMY_READY;	m_isAttackReady = true;
+				m_aniType = ENEMY_READY;  m_isAttackReady = true;
 				m_isAttackObject = false;
 				readyAni(m_direction);
 			}
 			break;
 		case ENEMY_UP:
+			if (m_bazooFlower.m_ani->getPlayIndex() == 10)
+			{
+				m_aniType = ENEMY_READY;  m_isAttackReady = true;
+				m_isAttackObject = false;
+				readyAni(m_direction);
+			}
+
 			break;
 		case ENEMY_RIGHT:
 			if (m_bazooFlower.m_ani->getPlayIndex() == 11)
@@ -420,6 +484,7 @@ void bazookaFlower::bazooFlowerAni(RECT _playerRc)
 	}
 }
 
+// 방향에 따른 오브젝트 나오는 위치 변경 해주는 함수
 void bazookaFlower::directObjectSet(ENEMYDIRECTION _enemyDirct)
 {
 	switch (m_direction)
@@ -427,11 +492,11 @@ void bazookaFlower::directObjectSet(ENEMYDIRECTION _enemyDirct)
 	case ENEMY_LEFT:
 		m_bazooFlower._objectRc = RectMakeCenter(m_bazooFlower._rc.left + 95, m_bazooFlower._rc.top + 55, 20, 16);
 		break;
-	case ENEMY_UP:
+	case ENEMY_UP:m_bazooFlower._objectRc = RectMakeCenter(m_bazooFlower._rc.left + 110, m_bazooFlower._rc.top + 40, 20, 16);
 		break;
-	case ENEMY_RIGHT:m_bazooFlower._objectRc = RectMakeCenter(m_bazooFlower._rc.right+15, m_bazooFlower._rc.top + 50, 20, 16);
+	case ENEMY_RIGHT:m_bazooFlower._objectRc = RectMakeCenter(m_bazooFlower._rc.right + 10, m_bazooFlower._rc.top + 50, 20, 16);
 		break;
-	case ENEMY_DOWN:m_bazooFlower._objectRc = RectMakeCenter(m_bazooFlower._rc.left+92, m_bazooFlower._rc.top + 50, 20, 16);
+	case ENEMY_DOWN:m_bazooFlower._objectRc = RectMakeCenter(m_bazooFlower._rc.left+110, m_bazooFlower._rc.top + 40, 20, 16);
 		break;
 	}
 }

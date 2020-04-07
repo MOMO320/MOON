@@ -48,6 +48,8 @@ public:
 	//추가 HDC얻기
 	HDC getHDC() { return _hdc; }
 
+	HDC getObjectDC() { return _backBuffer->getObjectDC(); }
+
 
 	LRESULT MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
